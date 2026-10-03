@@ -115,10 +115,13 @@ Then open:
 | `http://localhost:8080/admin` | **the admin panel** |
 | `http://localhost:8080/track` | customer order tracking |
 
-> Deploying? Put the folder on any Node host (Railway, Render, a VPS, cPanel Node app,
-> Hostinger/Pakistani Node hosting). Run `node server.js` behind nginx or let the host
-> handle TLS. The `deploy/` folder alone gives you the *static* site — orders then fall
-> back to Instagram/WhatsApp instead of being stored.
+> **Deploying to Vercel?** The repository includes Vercel routing and a serverless API
+> adapter. Configure Supabase and the required Vercel environment variables below before
+> deploying. Do not deploy only the `deploy/` folder: the storefront and admin require the
+> `/api/*` function.
+>
+> Other Node hosts can still run the app with `node server.js` behind nginx or their TLS
+> proxy. The `deploy/` folder alone gives you only the static storefront.
 
 ## Your admin login
 
@@ -255,7 +258,8 @@ the server becomes stateless and safe to redeploy anywhere.
 
 **2 · Create the tables.** In the project: **SQL Editor → New query**, paste the whole of
 `supabase/schema.sql` and press **Run**. It creates `products`, `orders`, `settings` and
-`admins`, plus security rules that keep orders and logins private.
+`admins`, plus security rules that keep orders and logins private and the public
+`xiks-uploads` bucket used for product photos.
 
 **3 · Give the server the keys.** Project Settings → **API** → copy the *Project URL* and the
 *service_role* key (the secret one — server-side only, never in a web page):
@@ -266,9 +270,35 @@ SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6... \
 node server.js
 ```
 
-On a host (Railway, Render, cPanel…) add those two as environment variables instead.
-Startup prints `database  Supabase (xxxxxxxx)` — that's your confirmation. With no
-products there yet, the starter catalogue is seeded automatically on first run.
+On a host, add those as environment variables instead. With no products there yet, the
+starter catalogue is seeded automatically on first run.
+
+### Vercel deployment
+
+Import the **repository root** into Vercel (not the `deploy/` subfolder). The included
+`vercel.json` serves the storefront/admin pages from `deploy/` and sends `/api/*` requests
+to the serverless function in `api/[...path].js`.
+
+In **Vercel → Project → Settings → Environment Variables**, add these for Production (and
+Preview too, if you use preview deployments):
+
+| Variable | Value |
+|---|---|
+| `SUPABASE_URL` | Supabase Project URL |
+| `SUPABASE_SERVICE_KEY` | Supabase **service_role** key (server-side secret) |
+| `SESSION_SECRET` | A long random secret, kept the same across deployments |
+| `ADMIN_USER` | Initial admin username, e.g. `admin` |
+| `ADMIN_PASSWORD` | Strong initial password (at least 8 characters) |
+
+Generate a session secret locally with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`.
+Set it in Vercel; do not commit it or change it between deployments, or existing sign-in
+sessions will be invalidated. Redeploy after setting the variables.
+
+If the admin account already exists in Supabase, its existing username/password remain in
+effect; the admin environment variables are only used to create the first account. To
+transfer local products and settings, follow “Move your existing data across” below before
+deploying. Vercel does not persist local JSON files, session secrets, or uploaded files;
+the app stores data in Supabase and uploaded photos in the `xiks-uploads` Storage bucket.
 
 **4 · Move your existing data across** (once):
 

@@ -27,8 +27,9 @@ const DATA = path.join(ROOT, 'data');
 const UPLOADS = path.join(DATA, 'uploads');
 const PORT = Number(process.env.PORT || 8080);
 const HOST = process.env.HOST || '0.0.0.0';
+const IS_VERCEL = process.env.VERCEL === '1';
 
-for (const d of [DATA, UPLOADS]) fs.mkdirSync(d, { recursive: true });
+if (!db.isSupabase) for (const d of [DATA, UPLOADS]) fs.mkdirSync(d, { recursive: true });
 
 /* ---------------------------------------------------------------- helpers */
 const nowISO = () => new Date().toISOString();
@@ -37,9 +38,11 @@ const money = n => 'Rs ' + Number(n).toLocaleString('en-US');
 const uid = (p = '') => p + crypto.randomBytes(6).toString('hex');
 
 /* ------------------------------------------------------------- seed data */
-if (!fs.existsSync(path.join(DATA, 'secret.txt')))
+if (IS_VERCEL && !process.env.SESSION_SECRET)
+  throw new Error('Set SESSION_SECRET in Vercel project environment variables to keep admin sessions valid across function instances.');
+if (!IS_VERCEL && !fs.existsSync(path.join(DATA, 'secret.txt')))
   fs.writeFileSync(path.join(DATA, 'secret.txt'), crypto.randomBytes(48).toString('hex'));
-const SECRET = fs.readFileSync(path.join(DATA, 'secret.txt'), 'utf8').trim();
+const SECRET = process.env.SESSION_SECRET || fs.readFileSync(path.join(DATA, 'secret.txt'), 'utf8').trim();
 
 /* OPEN_ADMIN=1  ->  the admin panel never asks for a password (anyone with the
    link can manage the shop). Handy while setting things up on your own machine,
@@ -89,19 +92,26 @@ async function seedIfEmpty() {
 async function ensureAdmin() {
   const admins = await db.admins();
   if (Object.keys(admins).length) return;
+  if (IS_VERCEL && !process.env.ADMIN_PASSWORD)
+    throw new Error('No admin account exists in Supabase. Set ADMIN_USER and ADMIN_PASSWORD in Vercel environment variables to create the first account.');
   const user = process.env.ADMIN_USER || 'admin';
   const pass = process.env.ADMIN_PASSWORD || crypto.randomBytes(6).toString('base64url');
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = crypto.scryptSync(pass, salt, 64).toString('hex');
   await db.saveAdmin(user, { salt, hash, created: nowISO() });
-  fs.writeFileSync(path.join(DATA, 'ADMIN-LOGIN.txt'),
-    `Xiks Collection — admin login\n------------------------------\n  username: ${user}\n  password: ${pass}\n\n` +
-    `  sign in at:  /admin\n  database:    ${db.label}\n  created:     ${nowISO()}\n`);
+  if (!IS_VERCEL) {
+    fs.writeFileSync(path.join(DATA, 'ADMIN-LOGIN.txt'),
+      `Xiks Collection — admin login\n------------------------------\n  username: ${user}\n  password: ${pass}\n\n` +
+      `  sign in at:  /admin\n  database:    ${db.label}\n  created:     ${nowISO()}\n`);
+  }
   console.log('\n' + '='.repeat(64));
   console.log(' XIKS ADMIN CREATED');
   console.log('   username: ' + user);
-  console.log('   password: ' + pass);
-  console.log(' (also saved to data/ADMIN-LOGIN.txt)');
+  if (IS_VERCEL) console.log('   password set from ADMIN_PASSWORD environment variable');
+  else {
+    console.log('   password: ' + pass);
+    console.log(' (also saved to data/ADMIN-LOGIN.txt)');
+  }
   console.log('='.repeat(64) + '\n');
 }
 
@@ -167,6 +177,15 @@ const ok = (res, data, headers) => send(res, 200, data, Object.assign({}, CORS, 
 const bad = (res, code, msg) => send(res, code, { error: msg }, CORS);
 
 function body(req, limit = 12 * 1024 * 1024) {
+  if (req.body !== undefined) {
+    if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) return Promise.resolve(req.body);
+    const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : String(req.body);
+    if (/application\/x-www-form-urlencoded/.test(req.headers['content-type'] || '')) {
+      return Promise.resolve(Object.fromEntries(new URLSearchParams(raw)));
+    }
+    try { return Promise.resolve(raw ? JSON.parse(raw) : {}); }
+    catch { return Promise.reject(new Error('invalid JSON')); }
+  }
   return new Promise((resolve, reject) => {
     let size = 0; const chunks = [];
     req.on('data', c => {
@@ -226,7 +245,7 @@ function orderPublicView(o) {
 }
 
 /* -------------------------------------------------------------- router */
-const server = http.createServer(async (req, res) => {
+async function handler(req, res) {
   const url = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
   const p = decodeURIComponent(url.pathname);
   const method = req.method.toUpperCase();
@@ -239,6 +258,7 @@ const server = http.createServer(async (req, res) => {
     /* ---------- API ---------- */
     if (p.startsWith('/api/')) {
       if (method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
+      await initialize();
 
       /* -- public: products -- */
       if (p === '/api/products' && method === 'GET') {
@@ -419,6 +439,11 @@ const server = http.createServer(async (req, res) => {
         const ext = m[2].toLowerCase() === 'jpeg' ? 'jpg' : m[2].toLowerCase();
         const name = (b.name || 'photo').replace(/[^\w.-]/g, '').slice(0, 40) || 'photo';
         const file = `${name}-${uid()}.${ext}`;
+        if (db.isSupabase) {
+          const contentType = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+          const imageUrl = await db.uploadImage(file, buf, contentType);
+          return ok(res, { path: imageUrl, bytes: buf.length });
+        }
         fs.writeFileSync(path.join(UPLOADS, file), buf);
         return ok(res, { path: 'uploads/' + file, bytes: buf.length });
       }
@@ -530,7 +555,7 @@ const server = http.createServer(async (req, res) => {
     console.error('[error]', err.message);
     return bad(res, 500, err.message || 'Server error');
   }
-});
+}
 
 /* image paths: '/assets/...' or absolute URL */
 function absoluteImage(img) {
@@ -544,10 +569,20 @@ async function publicSettings() {
            address: s.address, deliveryNote: s.deliveryNote, freeOver: s.freeOver, currency: s.currency };
 }
 
-(async () => {
-  try {
+let initialization;
+function initialize() {
+  if (!initialization) initialization = (async () => {
     await seedIfEmpty();
     await ensureAdmin();
+  })();
+  return initialization;
+}
+
+const server = http.createServer(handler);
+
+if (require.main === module) (async () => {
+  try {
+    await initialize();
   } catch (e) {
     console.error(`
   Could not reach the database.
@@ -578,3 +613,5 @@ async function publicSettings() {
     console.log('');
   });
 })();
+
+module.exports = { handler, initialize };

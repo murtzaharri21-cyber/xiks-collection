@@ -1,0 +1,12 @@
+{
+  "redirects": [
+    { "source": "/admin/", "destination": "/admin", "permanent": true },
+    { "source": "/track/", "destination": "/track", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/admin", "destination": "/deploy/admin.html" },
+    { "source": "/track", "destination": "/deploy/track.html" },
+    { "source": "/", "destination": "/deploy/index.html" },
+    { "source": "/:path*", "destination": "/deploy/:path*" }
+  ]
+}

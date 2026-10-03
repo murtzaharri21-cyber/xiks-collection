@@ -88,12 +88,9 @@ drop policy if exists "no public admin access" on public.admins;
 create policy "no public admin access" on public.admins
   for select using (false);
 
--- ============================================================ storage note ==
--- Product photos uploaded from the admin panel are written to ./data/uploads
--- on the server. To keep them in Supabase instead, create a public bucket:
---
---   insert into storage.buckets (id, name, public) values ('product-photos','product-photos',true)
---   on conflict (id) do nothing;
---
--- …then set STORAGE_MODE=supabase and SUPABASE_BUCKET=product-photos.
--- (The server already supports this — see the upload route in server.js.)
+-- ================================================================ storage ==
+-- Vercel's filesystem is not persistent. Admin-uploaded photos use this public
+-- bucket; uploads are authenticated by the server-side service-role key.
+insert into storage.buckets (id, name, public)
+values ('xiks-uploads', 'xiks-uploads', true)
+on conflict (id) do update set public = excluded.public;
