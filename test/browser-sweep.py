@@ -13,7 +13,18 @@ import os, re, time, sys
 from playwright.sync_api import sync_playwright
 
 BASE = os.environ.get('BASE', 'http://localhost:8080')
-PW   = os.environ.get('PW', 'TestOnly-Xiks-2026')
+def find_pw():
+    """The admin password, without hard-coding it in the repository:
+       $PW wins, otherwise it is read from the local data/ADMIN-LOGIN.txt."""
+    import os, re
+    if os.environ.get('PW'):
+        return os.environ['PW']
+    try:
+        m = re.search(r'password:\s*(\S+)', open('data/ADMIN-LOGIN.txt', encoding='utf-8').read())
+        return m.group(1) if m else ''
+    except OSError:
+        return ''
+PW = find_pw()
 USER = os.environ.get('USERNAME', 'xiks')
 
 results = []
@@ -22,7 +33,7 @@ def check(name, cond, extra=''):
     print(f"  {'✓' if cond else '✗'} {name}{'  ' + str(extra) if extra else ''}")
 
 with sync_playwright() as p:
-    browser = p.chromium.launch()
+    browser = p.chromium.launch(args=['--disable-dev-shm-usage', '--no-sandbox'])
     page = browser.new_page(viewport={'width': 1440, 'height': 950})
     errors, bad = [], []
     page.on('pageerror', lambda e: errors.append(str(e)))

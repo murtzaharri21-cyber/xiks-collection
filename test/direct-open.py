@@ -6,7 +6,18 @@ from playwright.sync_api import sync_playwright
 import time
 
 BASE = os.environ.get('BASE', 'http://localhost:8080')
-PW = os.environ.get('PW', 'TestOnly-Xiks-2026')
+def find_pw():
+    """The admin password, without hard-coding it in the repository:
+       $PW wins, otherwise it is read from the local data/ADMIN-LOGIN.txt."""
+    import os, re
+    if os.environ.get('PW'):
+        return os.environ['PW']
+    try:
+        m = re.search(r'password:\s*(\S+)', open('data/ADMIN-LOGIN.txt', encoding='utf-8').read())
+        return m.group(1) if m else ''
+    except OSError:
+        return ''
+PW = find_pw()
 
 def strip(route):
     """Simulate the preview: no cookies, and no session storage."""
@@ -19,7 +30,7 @@ def strip(route):
         route.continue_()
 
 with sync_playwright() as p:
-    b = p.chromium.launch()
+    b = p.chromium.launch(args=['--disable-dev-shm-usage', '--no-sandbox'])
     ctx = b.new_context(viewport={'width':1400,'height':950})
     # storage blocked for the whole context
     ctx.add_init_script("""

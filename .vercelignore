@@ -1,0 +1,12 @@
+# keep each deployment small — only what the site needs at runtime is uploaded
+screenshots/
+real/
+photos/
+test/
+src/
+supabase/
+data/
+.env
+*.py
+*.md
+.vscode/

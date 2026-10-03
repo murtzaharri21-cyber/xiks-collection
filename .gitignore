@@ -1,11 +1,9 @@
-.env
-.env.*
-!.env.example
+# local data (orders, products, admin logins) — on Vercel this lives in Supabase.
+# Never commit this folder: data/ADMIN-LOGIN.txt contains your password.
+data/
 
-# Local runtime state and credentials
-.kilo/
-data/ADMIN-LOGIN.txt
-data/admins.json
-data/orders.json
-data/secret.txt
-data/uploads/
+node_modules/
+.DS_Store
+*.log
+.env
+.env.local

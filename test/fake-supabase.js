@@ -23,8 +23,40 @@ let calls = 0;
 const fail = (res, code, message) => { res.writeHead(code, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ message, code })); };
 
+const BUCKETS = ['product-photos'];
+const objects = {};                                   // "bucket/file" -> Buffer
+
 http.createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
+
+  /* ---------------- Supabase Storage (photo uploads) ---------------- */
+  if (url.pathname.startsWith('/storage/v1/object/')) {
+    const isPublic = url.pathname.startsWith('/storage/v1/object/public/');
+    /* public buckets are readable by anyone — exactly like real Supabase */
+    if (!isPublic && req.headers.apikey !== KEY) return fail(res, 401, 'bad api key');
+    const rest = url.pathname.replace('/storage/v1/object/' + (isPublic ? 'public/' : ''), '');
+    const [bucket, ...fileParts] = rest.split('/');
+    const file = decodeURIComponent(fileParts.join('/'));
+    if (!BUCKETS.includes(bucket)) return fail(res, 404, `Bucket not found: ${bucket}`);
+    calls++;
+    if (req.method === 'POST' || req.method === 'PUT') {
+      const bufs = [];
+      req.on('data', c => bufs.push(c));
+      req.on('end', () => {
+        objects[bucket + '/' + file] = Buffer.concat(bufs);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ Key: bucket + '/' + file }));
+      });
+      return;
+    }
+    if (req.method === 'GET') {
+      const buf = objects[bucket + '/' + file];
+      if (!buf) return fail(res, 404, 'Object not found');
+      res.writeHead(200, { 'Content-Type': 'image/webp', 'Content-Length': buf.length });
+      return res.end(buf);
+    }
+  }
+
   const table = url.pathname.split('/')[3];       // /rest/v1/products
   if (!url.pathname.startsWith('/rest/v1/')) return fail(res, 404, 'not a REST path');
   if (req.headers.apikey !== KEY) return fail(res, 401, 'bad api key — send the service_role key');

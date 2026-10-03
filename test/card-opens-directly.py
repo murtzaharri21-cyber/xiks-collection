@@ -16,7 +16,7 @@ if not _s.get('open'):
 
 print('FRESH BROWSER — no cookies, no storage, straight to the storefront')
 with sync_playwright() as p:
-    b = p.chromium.launch()
+    b = p.chromium.launch(args=['--disable-dev-shm-usage', '--no-sandbox'])
     ctx = b.new_context(viewport={'width':1440,'height':950})
     ctx.add_init_script("""
       Object.defineProperty(window, 'sessionStorage', { get(){ throw new Error('blocked'); } });

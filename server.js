@@ -18,6 +18,25 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+
+/* A local .env file (never committed — it is in .gitignore) lets you keep the
+   Supabase keys on your own machine:
+       SUPABASE_URL=... / SUPABASE_SERVICE_KEY=... / SESSION_SECRET=...
+   then `node server.js` manages the live shop from your laptop.
+   On Vercel these come from Project → Settings → Environment Variables instead,
+   and that always wins: an existing variable is never overwritten here. */
+(function loadDotEnv() {
+  try {
+    const file = path.join(__dirname, '.env');
+    if (!fs.existsSync(file)) return;
+    for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
+      const m = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
+      if (!m) continue;
+      const value = m[2].trim().replace(/^["']|["']$/g, '').split(' #')[0].trim();
+      if (!(m[1] in process.env)) process.env[m[1]] = value;
+    }
+  } catch { /* a malformed .env must never stop the store */ }
+})();
 const crypto = require('crypto');
 const db = require('./db');
 
@@ -26,10 +45,14 @@ const PUBLIC = path.join(ROOT, 'deploy');
 const DATA = path.join(ROOT, 'data');
 const UPLOADS = path.join(DATA, 'uploads');
 const PORT = Number(process.env.PORT || 8080);
-const HOST = process.env.HOST || '0.0.0.0';
-const IS_VERCEL = process.env.VERCEL === '1';
 
-if (!db.isSupabase) for (const d of [DATA, UPLOADS]) fs.mkdirSync(d, { recursive: true });
+/* On Vercel (and any serverless host) the filesystem is read-only — nothing
+   below may assume it can write. Everything persistent goes through db.js. */
+const CAN_WRITE = (() => {
+  try { fs.mkdirSync(UPLOADS, { recursive: true }); fs.accessSync(UPLOADS, fs.constants.W_OK); return true; }
+  catch { return false; }
+})();
+const stateless = !CAN_WRITE || Boolean(process.env.VERCEL);
 
 /* ---------------------------------------------------------------- helpers */
 const nowISO = () => new Date().toISOString();
@@ -38,11 +61,22 @@ const money = n => 'Rs ' + Number(n).toLocaleString('en-US');
 const uid = (p = '') => p + crypto.randomBytes(6).toString('hex');
 
 /* ------------------------------------------------------------- seed data */
-if (IS_VERCEL && !process.env.SESSION_SECRET)
-  throw new Error('Set SESSION_SECRET in Vercel project environment variables to keep admin sessions valid across function instances.');
-if (!IS_VERCEL && !fs.existsSync(path.join(DATA, 'secret.txt')))
-  fs.writeFileSync(path.join(DATA, 'secret.txt'), crypto.randomBytes(48).toString('hex'));
-const SECRET = process.env.SESSION_SECRET || fs.readFileSync(path.join(DATA, 'secret.txt'), 'utf8').trim();
+/* The session signing key. On a serverless host it MUST come from an env var,
+   otherwise every cold start would invalidate every signed-in device.
+   Order: SESSION_SECRET → data/secret.txt (local) → derived from the Supabase
+   service key (stable across deploys) → random (sessions reset on restart). */
+const SECRET = (() => {
+  const fromEnv = String(process.env.SESSION_SECRET || '').trim();
+  if (fromEnv) return fromEnv;
+  const file = path.join(DATA, 'secret.txt');
+  try {
+    if (!fs.existsSync(file)) fs.writeFileSync(file, crypto.randomBytes(48).toString('hex'));
+    return fs.readFileSync(file, 'utf8').trim();
+  } catch { /* not writable — fall through */ }
+  const basis = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_URL;
+  if (basis) return crypto.createHash('sha256').update('xiks-session|' + basis).digest('hex');
+  return crypto.randomBytes(48).toString('hex');
+})();
 
 /* OPEN_ADMIN=1  ->  the admin panel never asks for a password (anyone with the
    link can manage the shop). Handy while setting things up on your own machine,
@@ -74,6 +108,14 @@ const DEFAULT_SETTINGS = {
   statuses: ['pending', 'confirmed', 'packed', 'shipped', 'delivered', 'cancelled'],
 };
 
+/* One boot per process, whichever host we are on: seed + admin. Cached so a
+   serverless cold start pays for it once and later requests skip it. */
+let booted = null;
+function boot() {
+  booted = booted || (async () => { await seedIfEmpty(); await ensureAdmin(); })();
+  return booted.catch(err => { booted = null; throw err; });
+}
+
 /* First run: if the active database has no products yet, seed it. */
 async function seedIfEmpty() {
   try {
@@ -92,26 +134,21 @@ async function seedIfEmpty() {
 async function ensureAdmin() {
   const admins = await db.admins();
   if (Object.keys(admins).length) return;
-  if (IS_VERCEL && !process.env.ADMIN_PASSWORD)
-    throw new Error('No admin account exists in Supabase. Set ADMIN_USER and ADMIN_PASSWORD in Vercel environment variables to create the first account.');
   const user = process.env.ADMIN_USER || 'admin';
   const pass = process.env.ADMIN_PASSWORD || crypto.randomBytes(6).toString('base64url');
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = crypto.scryptSync(pass, salt, 64).toString('hex');
   await db.saveAdmin(user, { salt, hash, created: nowISO() });
-  if (!IS_VERCEL) {
+  try {
     fs.writeFileSync(path.join(DATA, 'ADMIN-LOGIN.txt'),
       `Xiks Collection — admin login\n------------------------------\n  username: ${user}\n  password: ${pass}\n\n` +
       `  sign in at:  /admin\n  database:    ${db.label}\n  created:     ${nowISO()}\n`);
-  }
+  } catch { /* read-only host — the password is printed below instead */ }
   console.log('\n' + '='.repeat(64));
   console.log(' XIKS ADMIN CREATED');
   console.log('   username: ' + user);
-  if (IS_VERCEL) console.log('   password set from ADMIN_PASSWORD environment variable');
-  else {
-    console.log('   password: ' + pass);
-    console.log(' (also saved to data/ADMIN-LOGIN.txt)');
-  }
+  console.log('   password: ' + pass);
+  console.log(' (also saved to data/ADMIN-LOGIN.txt)');
   console.log('='.repeat(64) + '\n');
 }
 
@@ -176,15 +213,19 @@ const CORS = {
 const ok = (res, data, headers) => send(res, 200, data, Object.assign({}, CORS, headers));
 const bad = (res, code, msg) => send(res, code, { error: msg }, CORS);
 
+function parseRaw(raw, contentType) {
+  if (!raw) return {};
+  if (/application\/x-www-form-urlencoded/.test(contentType || '')) {
+    const out = {};
+    for (const [k, v] of new URLSearchParams(raw)) out[k] = v;
+    return out;
+  }
+  return JSON.parse(raw);
+}
 function body(req, limit = 12 * 1024 * 1024) {
-  if (req.body !== undefined) {
-    if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) return Promise.resolve(req.body);
-    const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : String(req.body);
-    if (/application\/x-www-form-urlencoded/.test(req.headers['content-type'] || '')) {
-      return Promise.resolve(Object.fromEntries(new URLSearchParams(raw)));
-    }
-    try { return Promise.resolve(raw ? JSON.parse(raw) : {}); }
-    catch { return Promise.reject(new Error('invalid JSON')); }
+  /* Serverless hosts hand us an already-read body — use it if present. */
+  if (typeof req.__rawBody === 'string') {
+    return Promise.resolve(parseRaw(req.__rawBody, req.headers['content-type']));
   }
   return new Promise((resolve, reject) => {
     let size = 0; const chunks = [];
@@ -195,18 +236,51 @@ function body(req, limit = 12 * 1024 * 1024) {
     });
     req.on('end', () => {
       const raw = Buffer.concat(chunks).toString('utf8');
-      if (!raw) return resolve({});
-      if (/application\/x-www-form-urlencoded/.test(req.headers['content-type'] || '')) {
-        const out = {};
-        for (const [k, v] of new URLSearchParams(raw)) out[k] = v;
-        return resolve(out);
-      }
-      try { resolve(JSON.parse(raw)); } catch (e) { reject(new Error('invalid JSON')); }
+      try { resolve(parseRaw(raw, req.headers['content-type'])); }
+      catch (e) { reject(new Error('invalid JSON')); }
     });
     req.on('error', reject);
   });
 }
 
+/* Where do uploaded photos live?
+   • Supabase Storage  — when SUPABASE_URL + service key are set (required on Vercel,
+     whose disk is read-only and wiped between requests)
+   • the local uploads/ folder — when running on your own machine
+   Returns { path } (a public URL or a relative path) or { error, status }. */
+async function storeImage(buf, file, contentType) {
+  const url = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
+  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY || '';
+  const bucket = process.env.SUPABASE_BUCKET || 'product-photos';
+
+  if (url && key) {
+    try {
+      const r = await fetch(`${url}/storage/v1/object/${bucket}/${encodeURIComponent(file)}`, {
+        method: 'POST',
+        headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': contentType, 'x-upsert': 'true' },
+        body: buf,
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        let msg = t;
+        try { const j = JSON.parse(t); msg = j.message || j.error || t; } catch { /* plain text */ }
+        if (r.status === 404) msg = `Storage bucket "${bucket}" not found — create it (see supabase/schema.sql) or set SUPABASE_BUCKET`;
+        return { error: 'Photo upload failed: ' + String(msg).slice(0, 200), status: 502 };
+      }
+      return { path: `${url}/storage/v1/object/public/${bucket}/${encodeURIComponent(file)}`, storage: 'supabase' };
+    } catch (err) {
+      return { error: 'Photo upload failed: ' + err.message, status: 502 };
+    }
+  }
+
+  if (!CAN_WRITE) {
+    return { error: 'This host has no writable disk. Add SUPABASE_URL + SUPABASE_SERVICE_KEY so photos can be stored in Supabase.', status: 503 };
+  }
+  fs.writeFileSync(path.join(UPLOADS, file), buf);
+  return { path: 'uploads/' + file, storage: 'disk' };
+}
+
+/* Serve a locally stored upload (serverless hosts serve them from Supabase instead) */
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8',
@@ -245,7 +319,11 @@ function orderPublicView(o) {
 }
 
 /* -------------------------------------------------------------- router */
-async function handler(req, res) {
+async function handleRequest(req, res) {
+  /* On a cold serverless start there is no boot step, so make sure the database
+     is seeded and an admin exists before the first request is answered. */
+  if (!booted) await boot();
+
   const url = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
   const p = decodeURIComponent(url.pathname);
   const method = req.method.toUpperCase();
@@ -258,7 +336,6 @@ async function handler(req, res) {
     /* ---------- API ---------- */
     if (p.startsWith('/api/')) {
       if (method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
-      await initialize();
 
       /* -- public: products -- */
       if (p === '/api/products' && method === 'GET') {
@@ -435,17 +512,15 @@ async function handler(req, res) {
         const m = /^data:(image\/(png|jpeg|jpg|webp));base64,(.+)$/i.exec(String(b.dataUrl || ''));
         if (!m) return bad(res, 400, 'Upload a PNG, JPG or WEBP image');
         const buf = Buffer.from(m[3], 'base64');
-        if (buf.length > 8 * 1024 * 1024) return bad(res, 400, 'Image must be under 8 MB');
+        const maxMB = stateless ? 4 : 8;                    // serverless request cap
+        if (buf.length > maxMB * 1024 * 1024) return bad(res, 400, `Image must be under ${maxMB} MB`);
         const ext = m[2].toLowerCase() === 'jpeg' ? 'jpg' : m[2].toLowerCase();
         const name = (b.name || 'photo').replace(/[^\w.-]/g, '').slice(0, 40) || 'photo';
         const file = `${name}-${uid()}.${ext}`;
-        if (db.isSupabase) {
-          const contentType = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
-          const imageUrl = await db.uploadImage(file, buf, contentType);
-          return ok(res, { path: imageUrl, bytes: buf.length });
-        }
-        fs.writeFileSync(path.join(UPLOADS, file), buf);
-        return ok(res, { path: 'uploads/' + file, bytes: buf.length });
+
+        const up = await storeImage(buf, file, m[1].toLowerCase());
+        if (up.error) return bad(res, up.status || 500, up.error);
+        return ok(res, { path: up.path, url: up.path, bytes: buf.length, storage: up.storage });
       }
 
       /* orders (admin) */
@@ -540,6 +615,7 @@ async function handler(req, res) {
 
     /* uploaded photos live outside deploy/ */
     if (p.startsWith('/uploads/')) {
+      if (!CAN_WRITE) return bad(res, 404, 'Not found');
       const f = path.join(UPLOADS, path.basename(p));
       return serveFile(res, f, 'public, max-age=604800');
     }
@@ -557,6 +633,9 @@ async function handler(req, res) {
   }
 }
 
+/* long-running host (node server.js) — Vercel imports handleRequest instead */
+const server = http.createServer(handleRequest);
+
 /* image paths: '/assets/...' or absolute URL */
 function absoluteImage(img) {
   if (!img) return 'assets/images/p1.webp';
@@ -569,20 +648,9 @@ async function publicSettings() {
            address: s.address, deliveryNote: s.deliveryNote, freeOver: s.freeOver, currency: s.currency };
 }
 
-let initialization;
-function initialize() {
-  if (!initialization) initialization = (async () => {
-    await seedIfEmpty();
-    await ensureAdmin();
-  })();
-  return initialization;
-}
-
-const server = http.createServer(handler);
-
 if (require.main === module) (async () => {
   try {
-    await initialize();
+    await boot();
   } catch (e) {
     console.error(`
   Could not reach the database.
@@ -598,11 +666,11 @@ if (require.main === module) (async () => {
 `);
     process.exit(1);
   }
-  server.listen(PORT, HOST, () => {
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`\n  Xiks Collection store server`);
-    console.log(`  storefront  http://${HOST}:${PORT}/`);
-    console.log(`  admin       http://${HOST}:${PORT}/admin`);
-    console.log(`  track       http://${HOST}:${PORT}/track`);
+    console.log(`  storefront  http://localhost:${PORT}/`);
+    console.log(`  admin       http://localhost:${PORT}/admin`);
+    console.log(`  track       http://localhost:${PORT}/track`);
     console.log(`  database    ${db.label}${db.isSupabase ? '' : '   (set SUPABASE_URL + SUPABASE_SERVICE_KEY to use Supabase)'}`);
     if (OPEN_ADMIN) {
       console.log('');
@@ -611,7 +679,9 @@ if (require.main === module) (async () => {
       console.log('     before you put the site on the internet.');
     }
     console.log('');
+    if (stateless) console.log('  note        running without a writable disk (serverless mode)\n');
   });
 })();
 
-module.exports = { handler, initialize };
+module.exports = { handleRequest, boot, db };
+module.exports.STATELESS = stateless;

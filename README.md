@@ -104,9 +104,6 @@ cd xiks-collection
 node server.js          # PORT=8080 by default, use PORT=3000 node server.js to change
 ```
 
-For a loopback-only local server in PowerShell, run `$env:HOST='127.0.0.1'; node server.js`.
-The default host is `0.0.0.0`, which listens on all network interfaces.
-
 Then open:
 
 | URL | What it is |
@@ -115,22 +112,24 @@ Then open:
 | `http://localhost:8080/admin` | **the admin panel** |
 | `http://localhost:8080/track` | customer order tracking |
 
-> **Deploying to Vercel?** The repository includes Vercel routing and a serverless API
-> adapter. Configure Supabase and the required Vercel environment variables below before
-> deploying. Do not deploy only the `deploy/` folder: the storefront and admin require the
-> `/api/*` function.
->
-> Other Node hosts can still run the app with `node server.js` behind nginx or their TLS
-> proxy. The `deploy/` folder alone gives you only the static storefront.
+> Deploying? Put the folder on any Node host (Railway, Render, a VPS, cPanel Node app,
+> Hostinger/Pakistani Node hosting). Run `node server.js` behind nginx or let the host
+> handle TLS. The `deploy/` folder alone gives you the *static* site — orders then fall
+> back to Instagram/WhatsApp instead of being stored.
 
 ## Your admin login
 
-On first run, the server creates the admin account and generates a one-time password.
-It prints the password and saves it to the local-only `data/ADMIN-LOGIN.txt` file. To
-choose credentials yourself, set `ADMIN_USER` and `ADMIN_PASSWORD` before first start.
+```
+   username: xiks
+   password: (your own — it is NOT written in this file)
+```
+
+The password is deliberately not stored in the repository: it lives in
+`data/ADMIN-LOGIN.txt` on your machine and in Vercel’s environment variables.
 
 Sign in at **`/admin`** — there is also an *Admin* button at the bottom of the storefront
-and in the footer, so you never have to remember the URL.
+and in the footer, so you never have to remember the URL. The same credentials are written
+to **`data/ADMIN-LOGIN.txt`** on the server.
 
 Change the password any time in **Admin → Settings → Change password**, or from the
 terminal (works with Supabase too):
@@ -153,8 +152,8 @@ custom headers or a browser that blocks cookies cannot lock the shop owner out.
 
 **The username and password are always required.** The Sign in button stays disabled until
 both fields are filled, an empty field says which one is missing, and the API refuses every
-admin request (401) without a valid session. On first run, the default username is `admin`;
-the password is generated randomly unless you set `ADMIN_PASSWORD` before startup.
+admin request (401) without a valid session. There is no default account — the credentials
+are the ones in `data/ADMIN-LOGIN.txt` (`xiks` plus your password — see `data/ADMIN-LOGIN.txt` on your machine).
 
 After a successful sign-in the device is remembered for 30 days (the **Keep me signed in on
 this device** box, ticked by default), so clicking the Admin card opens the panel directly
@@ -258,8 +257,7 @@ the server becomes stateless and safe to redeploy anywhere.
 
 **2 · Create the tables.** In the project: **SQL Editor → New query**, paste the whole of
 `supabase/schema.sql` and press **Run**. It creates `products`, `orders`, `settings` and
-`admins`, plus security rules that keep orders and logins private and the public
-`xiks-uploads` bucket used for product photos.
+`admins`, plus security rules that keep orders and logins private.
 
 **3 · Give the server the keys.** Project Settings → **API** → copy the *Project URL* and the
 *service_role* key (the secret one — server-side only, never in a web page):
@@ -270,35 +268,9 @@ SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6... \
 node server.js
 ```
 
-On a host, add those as environment variables instead. With no products there yet, the
-starter catalogue is seeded automatically on first run.
-
-### Vercel deployment
-
-Import the **repository root** into Vercel (not the `deploy/` subfolder). The included
-`vercel.json` serves the storefront/admin pages from `deploy/` and sends `/api/*` requests
-to the serverless function in `api/[...path].js`.
-
-In **Vercel → Project → Settings → Environment Variables**, add these for Production (and
-Preview too, if you use preview deployments):
-
-| Variable | Value |
-|---|---|
-| `SUPABASE_URL` | Supabase Project URL |
-| `SUPABASE_SERVICE_KEY` | Supabase **service_role** key (server-side secret) |
-| `SESSION_SECRET` | A long random secret, kept the same across deployments |
-| `ADMIN_USER` | Initial admin username, e.g. `admin` |
-| `ADMIN_PASSWORD` | Strong initial password (at least 8 characters) |
-
-Generate a session secret locally with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`.
-Set it in Vercel; do not commit it or change it between deployments, or existing sign-in
-sessions will be invalidated. Redeploy after setting the variables.
-
-If the admin account already exists in Supabase, its existing username/password remain in
-effect; the admin environment variables are only used to create the first account. To
-transfer local products and settings, follow “Move your existing data across” below before
-deploying. Vercel does not persist local JSON files, session secrets, or uploaded files;
-the app stores data in Supabase and uploaded photos in the `xiks-uploads` Storage bucket.
+On a host (Railway, Render, cPanel…) add those two as environment variables instead.
+Startup prints `database  Supabase (xxxxxxxx)` — that's your confirmation. With no
+products there yet, the starter catalogue is seeded automatically on first run.
 
 **4 · Move your existing data across** (once):
 
@@ -312,6 +284,52 @@ backup, and if you ever start the server *without* the variables it simply goes 
 using those files.
 
 `.env.example` in the project root lists the two variables with explanations.
+
+## Deploying to Vercel (+ Supabase) — the live setup
+
+Vercel does not run a permanent Node process and its disk is read-only, so the site
+is published as **`deploy/` (static) + one serverless function (`api/[...path].js`)**,
+with products, orders, logins and photos all kept in **Supabase**.
+
+**Full click-by-click guide → [`VERCEL-DEPLOY.md`](VERCEL-DEPLOY.md)**
+
+The short version:
+
+1. Create the Supabase project and run `supabase/schema.sql` in its SQL editor
+   (creates the tables *and* the `product-photos` bucket used for photo uploads).
+2. In Vercel, import the repo — Framework Preset **Other**, Output Directory **`deploy`**
+   (both already set in `vercel.json`).
+3. Add the environment variables and deploy:
+
+   | Variable | Value |
+   | --- | --- |
+   | `SUPABASE_URL` | `https://xxxx.supabase.co` *(required)* |
+   | `SUPABASE_SERVICE_KEY` | the **secret** key (`sb_secret_…` / `service_role`) — *not* the publishable/anon key, which can only read |
+   | `SESSION_SECRET` | any long random text — keeps logins alive across deploys |
+   | `ADMIN_USER` / `ADMIN_PASSWORD` | `xiks` / your password (used when the admin account is first created) |
+   | `SUPABASE_BUCKET` | `product-photos` (optional, this is the default) |
+
+4. Visit `/admin` on the deployed site — the sign-in card opens as it does locally.
+
+Changed anything in `src/`? Rebuild before you commit: `python3 build.py`
+(it rewrites `deploy/` and the single-file `index.html`).
+
+### Checking the Vercel code locally, without deploying
+
+Two small helpers let you run the exact production code path on your machine:
+
+```bash
+# a stand-in Supabase (so no account is needed)
+node test/fake-supabase.js 54321 &
+
+# serves deploy/ statically and routes /api/… through api/[...path].js,
+# exactly like Vercel does
+SUPABASE_URL=http://localhost:54321 SUPABASE_SERVICE_KEY=test-service-role-key \
+SESSION_SECRET=test-secret PORT=8090 node test/vercel-sim.js &
+
+# 25 checks: pages, rewrites, auth, orders, photo upload, product round-trip
+ADMIN_USER=xiks ADMIN_PW="$PW" node test/vercel-e2e.js   # PW = your admin password
+```
 
 ## Backups
 
@@ -494,5 +512,3 @@ drop your images into `photos/`, name them `hero.jpg`, `p1.jpg` … `p9.jpg`, th
 here — I'll install them and rebuild in one go.
 
 ---
-#   x i k s - c o l l e c t i o n  
- 

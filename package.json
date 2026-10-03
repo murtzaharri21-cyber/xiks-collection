@@ -2,7 +2,11 @@
   "name": "xiks-collection",
   "version": "1.0.0",
   "private": true,
-  "engines": {
-    "node": "22.x"
+  "description": "Xiks Collection storefront — Hussaini, Gojal Hunza, Pakistan",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "migrate": "node migrate-to-supabase.js",
+    "reset-password": "node reset-password.js"
   }
 }

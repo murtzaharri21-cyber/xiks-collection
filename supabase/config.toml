@@ -1,0 +1,30 @@
+# Supabase CLI configuration — https://supabase.com/docs/guides/cli
+# This file is what `supabase init` creates; it is already set up for your project,
+# so you can skip `supabase init` and go straight to:
+#
+#     supabase login                                   # paste a token from
+#                                                      # supabase.com/dashboard/account/tokens
+#     supabase link --project-ref dafxhhrwiwuumjydamqy  # asks for the database password
+#     supabase db push                                  # applies supabase/migrations/*.sql
+
+project_id = "dafxhhrwiwuumjydamqy"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[storage]
+enabled = true
+file_size_limit = "8MiB"

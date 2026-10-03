@@ -19,23 +19,30 @@ const path = require('path');
 const crypto = require('crypto');
 
 const DATA = path.join(__dirname, 'data');
-fs.mkdirSync(DATA, { recursive: true });
-fs.mkdirSync(path.join(DATA, 'uploads'), { recursive: true });
+const UPLOADS_DIR = path.join(DATA, 'uploads');
+
+/* On a serverless host (Vercel) the filesystem is read-only, so this must never
+   throw: the store keeps everything in Supabase there and only falls back to
+   these files on a normal machine. Without the guard, importing this module
+   would kill the function before it could answer a single request. */
+const DISK = (() => {
+  try { fs.mkdirSync(UPLOADS_DIR, { recursive: true }); return true; }
+  catch { return false; }
+})();
+const noDisk = (what) => {
+  throw new Error(`${what} is not available on this host: the filesystem is read-only. `
+    + 'Set SUPABASE_URL and SUPABASE_SERVICE_KEY so the store can use Supabase instead.');
+};
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY || '';
 const USE_SUPABASE = Boolean(SUPABASE_URL && SUPABASE_KEY);
-const IS_VERCEL = process.env.VERCEL === '1';
-
-if (!USE_SUPABASE && IS_VERCEL)
-  throw new Error('Vercel requires SUPABASE_URL and SUPABASE_SERVICE_KEY; local JSON storage is not persistent.');
 
 /* ============================================================ LOCAL DRIVER */
 const local = (() => {
-  fs.mkdirSync(DATA, { recursive: true });
-  fs.mkdirSync(path.join(DATA, 'uploads'), { recursive: true });
   const read = (f, fb) => { try { return JSON.parse(fs.readFileSync(path.join(DATA, f), 'utf8')); } catch { return fb; } };
   const write = (f, o) => {
+    if (!DISK) noDisk('Saving data/' + f);
     const tmp = path.join(DATA, f + '.tmp');
     fs.writeFileSync(tmp, JSON.stringify(o, null, 2));
     fs.renameSync(tmp, path.join(DATA, f));
@@ -60,7 +67,6 @@ const local = (() => {
 
 /* ========================================================= SUPABASE DRIVER */
 const supa = (() => {
-  const bucket = process.env.SUPABASE_BUCKET || 'xiks-uploads';
   const headers = (extra = {}) => Object.assign({
     apikey: SUPABASE_KEY,
     Authorization: 'Bearer ' + SUPABASE_KEY,
@@ -197,19 +203,6 @@ const supa = (() => {
         prefer: 'resolution=merge-duplicates,return=minimal',
       });
     },
-    async uploadImage(file, buffer, contentType) {
-      const objectPath = encodeURIComponent(file);
-      const response = await fetch(`${SUPABASE_URL}/storage/v1/object/${encodeURIComponent(bucket)}/${objectPath}`, {
-        method: 'POST',
-        headers: headers({ 'Content-Type': contentType, 'x-upsert': 'true' }),
-        body: buffer,
-      });
-      if (!response.ok) {
-        const detail = await response.text();
-        throw new Error(`Supabase Storage: ${detail || response.statusText} [${response.status}]`);
-      }
-      return `${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(bucket)}/${objectPath}`;
-    },
   };
 })();
 
@@ -218,7 +211,6 @@ const driver = USE_SUPABASE ? supa : local;
 
 let cache = null;                       // small in-process cache; refreshed on write
 async function load() {
-  if (process.env.VERCEL === '1') return driver.all();
   if (!cache) cache = await driver.all();
   return cache;
 }
@@ -332,10 +324,6 @@ const api = {
       await driver.saveAdmins(all.admins);
     }
     bust();
-  },
-  async uploadImage(file, buffer, contentType) {
-    if (driver.name !== 'supabase') throw new Error('Image storage requires Supabase on this host');
-    return supa.uploadImage(file, buffer, contentType);
   },
 
   /* ---- one-off migration helper ---- */

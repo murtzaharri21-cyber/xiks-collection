@@ -11,7 +11,12 @@
 const BASE = process.env.BASE || 'http://localhost:8081';
 const SUPA = (process.env.SUPA || 'http://localhost:54321').replace(/\/+$/, '');
 const SUPA_KEY = process.env.SUPA_KEY || 'test-service-role-key';
-const PW = process.env.PW || 'TestOnly-Xiks-2026';
+/* the admin password is never written in the repo: $PW, else data/ADMIN-LOGIN.txt */
+const PW = (() => {
+  if (process.env.PW) return process.env.PW;
+  try { const m = /password:\s*(\S+)/.exec(require('fs').readFileSync('data/ADMIN-LOGIN.txt', 'utf8')); return m ? m[1] : ''; }
+  catch { return ''; }
+})();
 
 const SKIP_DB = process.env.SKIP_DB === '1';
 let skipped = 0;
