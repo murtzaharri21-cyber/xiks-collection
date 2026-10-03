@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+
+# Local runtime state and credentials
+.kilo/
+data/ADMIN-LOGIN.txt
+data/admins.json
+data/orders.json
+data/secret.txt
+data/uploads/

@@ -1,0 +1,165 @@
+[
+  {
+    "id": "p1",
+    "name": "Xiks Track Pant — Black",
+    "cat": "Track Pants",
+    "price": 2800,
+    "was": null,
+    "badge": "Bestseller",
+    "note": "Unisex fit, contrast side stripe — comfort meets street style",
+    "rating": 4.9,
+    "colors": [
+      "#1B1B1B",
+      "#F2F2F2",
+      "#9AA0A6"
+    ],
+    "image": "assets/images/p1.webp",
+    "active": true,
+    "sort": 1,
+    "updated": "2026-10-03T08:59:25.725Z"
+  },
+  {
+    "id": "p2",
+    "name": "GLNZ Track Set",
+    "cat": "Tracksuits",
+    "price": 4900,
+    "was": null,
+    "badge": "New",
+    "note": "Full set — zip jacket + trouser, everyday street fit",
+    "rating": 4.8,
+    "colors": [
+      "#171717",
+      "#EDEDED",
+      "#8E8E8E"
+    ],
+    "image": "assets/images/p2.webp",
+    "active": true,
+    "sort": 2
+  },
+  {
+    "id": "p3",
+    "name": "Track Pant — Three Colours",
+    "cat": "Track Pants",
+    "price": 2800,
+    "was": null,
+    "badge": "",
+    "note": "Red, white or black — brushed inner, zip pockets",
+    "rating": 4.8,
+    "colors": [
+      "#C0392B",
+      "#F5F5F5",
+      "#1B1B1B"
+    ],
+    "image": "assets/images/p3.webp",
+    "active": true,
+    "sort": 3,
+    "updated": "2026-10-03T07:03:56.974Z"
+  },
+  {
+    "id": "p4",
+    "name": "2-in-1 Jacket — Grey",
+    "cat": "Jackets",
+    "price": 7500,
+    "was": null,
+    "badge": "Winter Ready",
+    "note": "Two layers: waterproof shell + inner — wear together or alone",
+    "rating": 4.9,
+    "colors": [
+      "#6B7280",
+      "#2F3B4C"
+    ],
+    "image": "assets/images/p4.webp",
+    "active": true,
+    "sort": 4
+  },
+  {
+    "id": "p5",
+    "name": "2-Piece Jacket Set",
+    "cat": "Sets",
+    "price": 8900,
+    "was": null,
+    "badge": "",
+    "note": "Jacket + trouser set, water-resistant, built for the outdoors",
+    "rating": 4.9,
+    "colors": [
+      "#4B5563",
+      "#3B6EA5"
+    ],
+    "image": "assets/images/p5.webp",
+    "active": true,
+    "sort": 5
+  },
+  {
+    "id": "p6",
+    "name": "Men's Winter Sweater",
+    "cat": "Sweaters",
+    "price": 3600,
+    "was": null,
+    "badge": "Bestseller",
+    "note": "Blue, black or grey — warm enough for a Hunza winter",
+    "rating": 4.9,
+    "colors": [
+      "#2E4A7D",
+      "#1B1B1B",
+      "#8D8D8D"
+    ],
+    "image": "assets/images/p6.webp",
+    "active": true,
+    "sort": 6
+  },
+  {
+    "id": "p7",
+    "name": "Xiks 2-in-1 Jacket — Black",
+    "cat": "Jackets",
+    "price": 7500,
+    "was": null,
+    "badge": "",
+    "note": "Hooded shell, sleeve pocket, windproof — our flagship",
+    "rating": 5,
+    "colors": [
+      "#141414",
+      "#2F3B4C"
+    ],
+    "image": "assets/images/p7.webp",
+    "active": true,
+    "sort": 7
+  },
+  {
+    "id": "p8",
+    "name": "Winter Jacket — 3 Colours",
+    "cat": "Jackets",
+    "price": 6900,
+    "was": 8200,
+    "badge": "Sale",
+    "note": "Black, cream or beige — padded, lightweight, everyday warm",
+    "rating": 4.8,
+    "colors": [
+      "#1B1B1B",
+      "#E8DFCB",
+      "#D9C7A0"
+    ],
+    "image": "assets/images/p8.webp",
+    "active": true,
+    "sort": 8,
+    "updated": "2026-10-03T07:03:56.914Z"
+  },
+  {
+    "id": "p9",
+    "name": "Heavy 2-in-1 Jacket",
+    "cat": "Jackets",
+    "price": 8200,
+    "was": null,
+    "badge": "Winter Ready",
+    "note": "Two layers, fully waterproof — summer shell, winter coat",
+    "rating": 5,
+    "colors": [
+      "#1B1B1B",
+      "#232F45",
+      "#7A7A7A"
+    ],
+    "image": "assets/images/p9.webp",
+    "active": true,
+    "sort": 9,
+    "updated": "2026-10-03T07:35:46.023Z"
+  }
+]

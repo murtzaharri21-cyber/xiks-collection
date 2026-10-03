@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Xiks Collection</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232B241F'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='16' fill='%23F7F1E7' text-anchor='middle'%3EX%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --cream:#F7F1E7;--ivory:#FFFCF7;--sand:#E9DBC8;--taupe:#B7A28B;--taupe-deep:#8E7962;
+  --blush:#E8C9C3;--ink:#2B241F;--ink-soft:#6D5D50;--gold:#B08D57;--line:rgba(43,36,31,.12);
+  --ok:#3F7D58;--warn:#C08A2E;--info:#3B6EA5;--bad:#B4432F;--done:#2F6B4F;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --r:14px;--shadow:0 18px 40px -22px rgba(60,45,32,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;line-height:1.1}
+a{color:inherit}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select,textarea{font:inherit;color:inherit}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:8px;top:8px;background:var(--ink);color:var(--ivory);padding:10px 16px;border-radius:8px;z-index:99}
+
+/* ---------- login ---------- */
+#login{min-height:100svh;display:grid;place-items:center;padding:24px}
+.login-card{
+  width:min(420px,100%);background:var(--ivory);border-radius:22px;padding:38px 32px;box-shadow:var(--shadow);
+  border:1px solid rgba(255,255,255,.7);position:relative;overflow:hidden;
+}
+.login-card::after{content:"";position:absolute;width:70%;aspect-ratio:1;right:-25%;top:-30%;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,201,195,.5),transparent 70%)}
+.login-card h1{font-size:34px;letter-spacing:.24em;text-indent:.24em;text-align:center}
+.login-card .sub{text-align:center;font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--taupe-deep);margin-top:10px}
+.field{margin-top:16px}
+.field label{display:block;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--taupe-deep);margin-bottom:7px}
+.field input,.field select,.field textarea{
+  width:100%;padding:13px 15px;border:1px solid var(--line);border-radius:11px;background:#fff;outline:none;transition:box-shadow .3s,border-color .3s
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blush);box-shadow:0 0 0 4px rgba(232,201,195,.45)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 22px;border-radius:100px;
+  background:var(--ink);color:var(--ivory);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  transition:transform .3s,box-shadow .3s,background .3s;white-space:nowrap
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 26px -14px rgba(43,36,31,.55)}
+.btn.wide{width:100%;margin-top:22px;padding:15px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:#fff}
+.btn.sm{padding:9px 15px;font-size:10.5px}
+.btn.danger{background:var(--bad)}
+.btn.ghost.sm.del{color:var(--bad);padding:9px 12px;font-size:12px}
+.btn.ghost.sm.del:hover{background:var(--bad);color:var(--ivory);border-color:var(--bad)}
+.msg{margin-top:14px;font-size:13px;color:var(--bad);min-height:20px;text-align:center}
+
+/* ---------- shell ---------- */
+#app{display:none;min-height:100svh;grid-template-columns:250px 1fr}
+#app.on{display:grid}
+#app>aside{
+  background:var(--ink);color:var(--ivory);padding:26px 20px;display:flex;flex-direction:column;gap:8px;
+  position:sticky;top:0;height:100svh
+}
+#app>aside .brand{font-family:var(--serif);font-size:24px;letter-spacing:.24em;text-indent:.24em;margin-bottom:6px}
+#app>.openbar{
+  position:fixed;left:0;right:0;top:0;z-index:60;background:#B3261E;color:#FFF6F4;
+  padding:9px 18px;font-size:12.5px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;
+  box-shadow:0 6px 18px -8px rgba(0,0,0,.45)
+}
+.openbar b{font-weight:700}
+.openbar span{opacity:.92;font-size:12px}
+body.openmode #app.on{padding-top:42px}
+body.openmode #login{padding-top:52px}
+#app>aside .db-badge{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,252,247,.5);margin:-14px 0 18px;line-height:1.5}
+.nav{display:grid;gap:4px}
+.nav button{
+  text-align:left;padding:12px 14px;border-radius:11px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,252,247,.72);transition:background .3s,color .3s,transform .3s
+}
+.nav button:hover{background:rgba(255,252,247,.1);color:var(--ivory);transform:translateX(3px)}
+.nav button.on{background:var(--ivory);color:var(--ink)}
+.nav .pill{margin-left:8px;background:var(--blush);color:var(--ink);border-radius:20px;padding:1px 8px;font-size:10px}
+#app>aside .foot{margin-top:auto;display:grid;gap:8px}
+#app>aside .foot a,#app>aside .foot button{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,252,247,.6);text-align:left;padding:8px 4px}
+#app>aside .foot a:hover,#app>aside .foot button:hover{color:var(--ivory)}
+
+main{padding:30px clamp(18px,4vw,44px) 80px;max-width:1400px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px}
+.top h1{font-size:clamp(28px,4vw,44px)}
+.top p{margin:6px 0 0;color:var(--ink-soft);font-size:13.5px}
+.hide{display:none !important}
+
+/* ---------- cards / stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.stat{
+  background:var(--ivory);border-radius:var(--r);padding:20px;border:1px solid rgba(255,255,255,.7);
+  box-shadow:var(--shadow);transition:transform .4s
+}
+.stat:hover{transform:translateY(-4px) rotateX(3deg)}
+.stat b{display:block;font-family:var(--serif);font-size:32px;line-height:1}
+.stat small{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--taupe-deep)}
+.stat.accent{background:linear-gradient(135deg,var(--blush),var(--sand))}
+.panel{background:var(--ivory);border-radius:18px;padding:22px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.7);margin-top:22px}
+.panel h3{font-size:22px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=search],input[type=date],select{padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe-deep);padding:10px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:12px 10px;border-bottom:1px solid rgba(43,36,31,.06);vertical-align:middle}
+tr.clickable{cursor:pointer;transition:background .25s}
+tr.clickable:hover{background:rgba(232,201,195,.18)}
+.tag{display:inline-block;padding:4px 11px;border-radius:100px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.tag.pending{background:#F4E3C4;color:#7A5A12}
+.tag.confirmed{background:#DCE7F5;color:#274E7D}
+.tag.packed{background:#E5E0F0;color:#4B3D7A}
+.tag.shipped{background:#D6EBE0;color:#226047}
+.tag.delivered{background:#CFE7DA;color:#1F5138}
+.tag.cancelled{background:#F5D9D3;color:#8A3020}
+.thumbs{display:flex;gap:6px}
+.thumbs img{width:42px;height:42px;border-radius:8px;object-fit:cover}
+.pimg{width:56px;height:56px;border-radius:10px;object-fit:cover;background:var(--sand)}
+.empty{padding:40px;text-align:center;color:var(--taupe-deep);font-family:var(--serif);font-size:20px}
+
+/* ---------- drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(43,36,31,.42);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .4s;z-index:60}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{
+  color:var(--ink);background:var(--ivory);
+  position:fixed;top:0;right:0;bottom:0;width:min(560px,94vw);background:var(--ivory);z-index:61;
+  transform:translateX(103%);transition:transform .5s cubic-bezier(.22,.61,.36,1);display:flex;flex-direction:column;box-shadow:var(--shadow)
+}
+.drawer.on{transform:none}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:22px 24px;border-bottom:1px solid var(--line)}
+.drawer .body{padding:22px 24px;overflow:auto;flex:1}
+.drawer .foot{border-top:1px solid var(--line);padding:18px 24px;display:flex;gap:10px;flex-wrap:wrap}
+.x{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:transform .3s}
+.x:hover{transform:rotate(90deg)}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:8px 14px;font-size:13.5px;margin:14px 0}
+.kv b{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--taupe-deep);font-weight:600;padding-top:4px}
+.timeline{list-style:none;padding:0;margin:10px 0 0;border-left:1px solid var(--line)}
+.timeline li{position:relative;padding:0 0 16px 20px}
+.timeline li::before{content:"";position:absolute;left:-5px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--taupe)}
+.timeline li:first-child::before{background:var(--ink)}
+.timeline small{display:block;color:var(--taupe-deep);font-size:11px;letter-spacing:.06em}
+.lineitem{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(43,36,31,.06)}
+.lineitem img{width:54px;height:54px;border-radius:10px;object-fit:cover}
+.lineitem .t{font-family:var(--serif);font-size:17px}
+.lineitem .m{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe-deep)}
+.lineitem .amt{margin-left:auto;font-family:var(--serif);font-size:18px}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:18px;opacity:0;pointer-events:none;transition:opacity .35s}
+.modal.on{opacity:1;pointer-events:auto}
+.modal .box{color:var(--ink);background:var(--ivory);border-radius:20px;width:min(680px,100%);max-height:92svh;overflow:auto;box-shadow:var(--shadow);transform:translateY(18px) scale(.98);transition:transform .4s}
+.modal.on .box{transform:none}
+.modal .box header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--ivory);z-index:2}
+.modal .box .body{padding:22px 24px}
+.modal .box .foot{padding:16px 24px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:var(--ivory)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.drop{
+  border:1.5px dashed var(--taupe);border-radius:14px;padding:18px;text-align:center;color:var(--taupe-deep);
+  font-size:12.5px;background:rgba(233,219,200,.25);cursor:pointer;transition:background .3s,border-color .3s
+}
+.drop:hover,.drop.over{background:rgba(232,201,195,.35);border-color:var(--ink)}
+.drop img{max-height:180px;border-radius:10px;margin-top:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:6px 11px;border-radius:100px;background:rgba(43,36,31,.06)}
+.chip button{margin-left:6px;color:var(--bad)}
+.swatch{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:inline-block;vertical-align:middle}
+
+/* ---------- toast ---------- */
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;z-index:90;
+  background:var(--ink);color:var(--ivory);padding:13px 22px;border-radius:100px;font-size:12px;
+  letter-spacing:.12em;text-transform:uppercase;transition:all .4s;pointer-events:none;box-shadow:var(--shadow)
+}
+#toast.on{transform:translate(-50%,0);opacity:1}
+.banner{
+  background:#FDF3E3;border:1px solid #E9CF9E;border-left:4px solid var(--warn);border-radius:12px;
+  padding:16px 18px;margin-bottom:18px
+}
+.banner b{display:block;font-size:14px;margin-bottom:4px}
+.banner p{margin:0 0 12px;font-size:13px;color:#7A5A12}
+.banner code{background:rgba(43,36,31,.07);padding:1px 5px;border-radius:5px}
+.direct{margin-top:16px;padding:14px 16px;background:rgba(43,36,31,.05);border-radius:10px}
+.direct b{font-size:13.5px}
+.direct p{margin:4px 0 10px;font-size:12.5px;color:var(--ink-soft)}
+.direct input{font:12px ui-monospace,Menlo,monospace;color:var(--ink-soft)}
+.diag{
+  margin:12px 0 0;padding:12px 14px;background:rgba(43,36,31,.06);border-radius:9px;
+  font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;color:#4A3B22
+}
+.build{font-size:10.5px;letter-spacing:.08em;color:var(--taupe-deep);opacity:.75}
+.remember{display:flex;align-items:center;gap:9px;margin:2px 0 14px;font-size:13px;color:var(--ink-soft);cursor:pointer}
+.remember input{width:16px;height:16px;accent-color:var(--ink)}
+.remember small{color:var(--taupe-deep)}
+.login-help{margin-top:14px;font-size:12px;color:var(--taupe-deep);display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.linkish{background:none;border:0;padding:0;font:inherit;color:var(--taupe-deep);text-decoration:underline;cursor:pointer}
+.linkish:hover{color:var(--ink)}
+
+@media (max-width:900px){
+  #app.on{grid-template-columns:1fr}
+  #app>aside{position:static;height:auto;flex-direction:row;align-items:center;gap:14px;overflow-x:auto;padding:14px}
+  #app>aside .brand,#app>aside .who{display:none}
+  .nav{display:flex;gap:6px}
+  .nav button{padding:9px 12px;font-size:11px}
+  #app>aside .foot{display:none}
+  .grid2,.grid3{grid-template-columns:1fr}
+  table{font-size:12.5px}
+  th:nth-child(2),td:nth-child(2){display:none}
+}
+@media print{#app>aside,.top,.row,.foot,.x{display:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#app">Skip to admin</a>
+
+<!-- ============================ LOGIN ============================ -->
+<section id="login">
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <h1>XIKS</h1>
+    <div class="sub">Store admin · Hunza</div>
+    <div class="build" id="buildStamp"></div>
+    <div class="field">
+      <label for="u">Username</label>
+      <input id="u" name="username" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label for="p">Password</label>
+      <input id="p" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <label class="remember"><input type="checkbox" id="remember" checked>
+      <span>Keep me signed in on this device <small>(30 days — no password)</small></span></label>
+    <button class="btn wide" type="button" id="loginGo">Sign in</button>
+    <div class="msg" id="loginMsg"></div>
+    <div class="login-help">
+      <button type="button" class="linkish" id="showPw">Show password</button>
+      <span>·</span>
+      <button type="button" class="linkish" id="freshCopy">Load a fresh copy</button>
+      <span>·</span>
+      <button type="button" class="linkish" id="loginCheck">Run a check</button>
+    </div>
+    <pre id="loginDiag" class="diag hide"></pre>
+    <div id="connState" style="text-align:center;font-size:11.5px;margin-top:14px;color:var(--taupe-deep)">
+      Checking the store server&hellip;
+    </div>
+    <p style="text-align:center;font-size:12px;color:var(--taupe-deep);margin-top:10px">
+      Forgot it? Run <code>node reset-password.js</code> on the server, or read
+      <code>data/ADMIN-LOGIN.txt</code>.
+    </p>
+  </form>
+</section>
+
+<!-- ============================ APP ============================ -->
+<div id="openBar" class="openbar hide">
+  <b>No password is needed to open this panel.</b>
+  <span>Anyone with the link can change prices and read orders. Ask for the password to be switched back on before this site goes on the internet.</span>
+</div>
+
+<div id="app">
+  <aside>
+    <div class="brand">XIKS</div>
+    <div class="who" id="whoami">admin</div>
+    <div class="db-badge" id="dbBadge" title="Where your products and orders are stored">database: …</div>
+    <nav class="nav">
+      <button data-tab="dash" class="on">Dashboard</button>
+      <button data-tab="orders">Orders <span class="pill" id="pillPending">0</span></button>
+      <button data-tab="products">Products</button>
+      <button data-tab="settings">Settings</button>
+    </nav>
+    <div class="foot">
+      <a href="/" target="_blank" data-ext>↗ Open storefront</a>
+      <a href="/track" target="_blank" data-ext>↗ Tracking page</a>
+      <button id="logout">Sign out</button>
+    </div>
+  </aside>
+
+  <main>
+    <!-- -------- dashboard -------- -->
+    <section data-panel="dash">
+      <div class="top">
+        <div><h1>Dashboard</h1><p id="dashDate"></p></div>
+        <div class="row">
+          <button class="btn ghost sm" id="refreshDash">Refresh</button>
+          <a class="btn sm" href="/api/admin/orders.csv" id="csvBtn">Export CSV</a>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="panel">
+        <h3>Latest orders</h3>
+        <div id="recent"></div>
+      </div>
+    </section>
+
+    <!-- -------- orders -------- -->
+    <section data-panel="orders" class="hide">
+      <div class="top">
+        <div><h1>Orders</h1><p>Every order placed on the site, with its tracking number.</p></div>
+        <div class="row">
+          <a class="btn ghost sm" href="/api/admin/orders.csv">Export CSV</a>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="row">
+          <input type="search" id="oq" placeholder="Search ref, name, phone, city…" style="flex:1;min-width:200px">
+          <select id="ostatus">
+            <option value="all">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="packed">Packed</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <input type="date" id="ofrom" title="From date">
+          <input type="date" id="oto" title="To date">
+          <button class="btn sm ghost" id="oclear">Clear</button>
+        </div>
+        <div id="ordersWrap" style="margin-top:16px"></div>
+      </div>
+    </section>
+
+    <!-- -------- products -------- -->
+    <section data-panel="products" class="hide">
+      <div class="top">
+        <div><h1>Products</h1><p>Change names, prices, photos — or add a new piece. The storefront updates instantly.</p></div>
+        <div class="row"><button class="btn" id="addProduct">+ New product</button></div>
+      </div>
+      <div id="productsOffline" class="banner hide">
+        <b>Not showing products — the admin panel can’t reach the store server.</b>
+        <p>Open <code>http://localhost:8080/admin</code> (the address <code>node server.js</code> prints) instead of the plain file.
+           The list below is read from your database, so it stays empty until the server answers.</p>
+        <div class="row"><button class="btn sm" id="retryProducts">Try again</button>
+          <button class="btn ghost sm" id="diagnoseBtn">Run a check</button></div>
+        <pre id="diagOut" class="diag hide"></pre>
+      </div>
+      <div class="panel"><div id="productsWrap"></div></div>
+    </section>
+
+    <!-- -------- settings -------- -->
+    <section data-panel="settings" class="hide">
+      <div class="top"><div><h1>Settings</h1><p>Shop details, contact links and your password.</p></div></div>
+      <div class="panel">
+        <h3>Shop</h3>
+        <div class="grid2">
+          <div class="field"><label>Store name</label><input id="s_storeName"></div>
+          <div class="field"><label>Instagram URL</label><input id="s_instagram"></div>
+          <div class="field"><label>WhatsApp number <small style="text-transform:none;letter-spacing:0">(digits only, e.g. 92300…)</small></label><input id="s_whatsapp"></div>
+          <div class="field"><label>Facebook URL</label><input id="s_facebook"></div>
+          <div class="field"><label>Boutique address</label><input id="s_address"></div>
+          <div class="field"><label>Delivery line shown to customers</label><input id="s_deliveryNote"></div>
+          <div class="field"><label>Free delivery over (Rs — 0 = off)</label><input id="s_freeOver" type="number"></div>
+          <div class="field"><label>Categories <small style="text-transform:none;letter-spacing:0">(comma separated)</small></label><input id="s_categories"></div>
+        </div>
+        <div class="row" style="margin-top:18px"><button class="btn" id="saveSettings">Save settings</button></div>
+      </div>
+
+      <div class="panel">
+        <h3>Change password</h3>
+        <div class="grid3">
+          <div class="field"><label>Current password</label><input type="password" id="pw_cur"></div>
+          <div class="field"><label>New password</label><input type="password" id="pw_new"></div>
+          <div class="field"><label>Repeat new password</label><input type="password" id="pw_rep"></div>
+        </div>
+        <div class="row" style="margin-top:18px"><button class="btn" id="savePassword">Update password</button></div>
+      </div>
+
+      <div class="panel" id="dbPanel">
+        <h3>Database</h3>
+        <p id="dbPanelText" style="color:var(--ink-soft);font-size:13.5px">Checking…</p>
+        <div class="direct hide" id="directRow">
+          <b>Direct sign-in link</b>
+          <p>Save this on your phone or laptop — opening it goes straight into the panel, no password, for 7 days.</p>
+          <div class="row"><input id="directLink" readonly style="flex:1;min-width:220px">
+            <button class="btn ghost sm" id="copyDirect">Copy</button></div>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn ghost sm" id="dbRefresh">Refresh</button>
+          <a class="btn ghost sm" href="https://supabase.com/dashboard" target="_blank" rel="noopener">Open Supabase</a>
+        </div>
+        <details style="margin-top:16px">
+          <summary style="cursor:pointer;font-size:13px;color:var(--taupe-deep)">Switch to Supabase (3 steps)</summary>
+          <ol style="font-size:13.5px;color:var(--ink-soft);line-height:1.7;padding-left:20px;margin-top:10px">
+            <li>Create a project at <b>supabase.com</b> (free tier is plenty).</li>
+            <li>Supabase → SQL Editor → paste <code>supabase/schema.sql</code> → Run.</li>
+            <li>Project Settings → API → copy the <b>Project URL</b> and the <b>service_role</b> key,
+                then start the server with them:
+                <pre style="white-space:pre-wrap;background:rgba(43,36,31,.06);padding:10px;border-radius:8px;font-size:12px;margin-top:8px">SUPABASE_URL=https://xxxx.supabase.co \
+SUPABASE_SERVICE_KEY=eyJhbGciOi... \
+node server.js</pre>
+                and run <code>node migrate-to-supabase.js</code> once to copy your current data across.</li>
+          </ol>
+        </details>
+      </div>
+
+      <div class="panel">
+        <h3>Backups</h3>
+        <p style="color:var(--ink-soft);font-size:13.5px">Every order and product lives in <code>data/*.json</code> on the server.
+        Download a copy before big changes.</p>
+        <div class="row" style="margin-top:14px">
+          <a class="btn ghost sm" href="/api/admin/orders.csv">Orders → CSV</a>
+          <a class="btn ghost sm" href="/api/admin/products" target="_blank">Products → JSON</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- drawers / modals -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <header><h3 id="drawerTitle">Order</h3><button class="x" id="drawerX">✕</button></header>
+  <div class="body" id="drawerBody"></div>
+  <div class="foot" id="drawerFoot"></div>
+</aside>
+
+<div class="modal" id="productModal">
+  <form class="box" id="productForm">
+    <header><h3 id="pmTitle">New product</h3><button class="x" type="button" id="pmX">✕</button></header>
+    <div class="body">
+      <input type="hidden" id="pm_id">
+      <div class="grid2">
+        <div class="field"><label>Product name</label><input id="pm_name" required></div>
+        <div class="field"><label>Category</label><input id="pm_cat" list="catList" required><datalist id="catList"></datalist></div>
+        <div class="field"><label>Price (Rs)</label><input id="pm_price" type="number" min="0" required></div>
+        <div class="field"><label>Was price (optional)</label><input id="pm_was" type="number" min="0"></div>
+        <div class="field"><label>Badge (e.g. New)</label><input id="pm_badge" maxlength="24"></div>
+        <div class="field"><label>Rating (0–5)</label><input id="pm_rating" type="number" min="0" max="5" step="0.1" value="5"></div>
+      </div>
+      <div class="field"><label>Short description</label><textarea id="pm_note" rows="2"></textarea></div>
+      <div class="field">
+        <label>Photo</label>
+        <div class="drop" id="pm_drop">
+          <div id="pm_dropText">Tap to choose a photo, or drop one here<br><small>JPG / PNG / WEBP · up to 8 MB</small></div>
+          <div id="pm_preview"></div>
+          <input type="file" id="pm_file" accept="image/*" style="display:none">
+        </div>
+        <div class="field" style="margin-top:10px"><label>…or paste an image URL / path</label><input id="pm_image" placeholder="assets/images/p1.webp"></div>
+      </div>
+      <div class="field">
+        <label>Colour swatches (optional)</label>
+        <input id="pm_colors" placeholder="#1B1B1B, #F2F2F2, #9AA0A6">
+        <div class="chips" id="pm_swatches"></div>
+      </div>
+      <label class="row" style="margin-top:14px;gap:8px"><input type="checkbox" id="pm_active" checked> <span>Visible in the storefront</span></label>
+    </div>
+    <div class="foot">
+      <button class="btn ghost" type="button" id="pmCancel">Cancel</button>
+      <button class="btn" type="button" id="pmSave">Save product</button>
+    </div>
+  </form>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================ helpers */
+const $ = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+const money = n => 'Rs ' + Number(n || 0).toLocaleString('en-US');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const when = iso => new Date(iso).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+let toastT;
+function toast(msg, bad) {
+  const t = $('#toast'); t.textContent = msg; t.style.background = bad ? 'var(--bad)' : 'var(--ink)';
+  t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600);
+}
+/* --- session token ----------------------------------------------------------
+   In a preview pane / sandboxed frame the browser blocks cookies, so the panel
+   also keeps the server's signed token and sends it as a header. Storage may be
+   blocked too, in which case it lives in memory for this page view. */
+const BUILD = 'admin build 2026-10-03 · r5';      /* shown on the card: confirms which copy you are looking at */
+const TOKEN_KEY = 'xiks_admin_token';
+
+/* Can this page keep the session in storage? Sandboxed preview panes say no. */
+const STORAGE_OK = (() => {
+  try { sessionStorage.setItem('__t', '1'); sessionStorage.removeItem('__t'); return true; } catch { return false; }
+})();
+
+/* Where the session comes from, best first:
+   1. ?tok= in the address bar  — travels with the link, works everywhere
+   2. sessionStorage            — normal browsers
+   3. memory                    — until this page is left */
+let TOKEN = (() => {
+  try { const q = new URLSearchParams(location.search).get('tok'); if (q) return q; } catch {}
+  try { const s = sessionStorage.getItem(TOKEN_KEY); if (s) return s; } catch {}
+  try { const l = localStorage.getItem(TOKEN_KEY); if (l) return l; } catch {}
+  return '';
+})();
+
+/* Strip a rejected token out of the address bar so a stale link cannot confuse us. */
+function clearUrlToken() {
+  try {
+    const u = new URL(location.href);
+    if (!u.searchParams.has('tok')) return;
+    u.searchParams.delete('tok');
+    history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+  } catch { /* opaque origin — nothing to clean */ }
+}
+
+function setToken(t) {
+  TOKEN = t || '';
+  try { t ? sessionStorage.setItem(TOKEN_KEY, t) : sessionStorage.removeItem(TOKEN_KEY); } catch { /* blocked */ }
+  try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch { /* blocked */ }
+  if (!STORAGE_OK) {
+    /* The session cannot live in storage here, so it lives in the link instead:
+       reloads, back/forward and any link we hand out keep the owner signed in. */
+    try {
+      const u = new URL(location.href);
+      if (t) u.searchParams.set('tok', t); else u.searchParams.delete('tok');
+      history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+    } catch { /* nothing we can do — memory keeps it for this page */ }
+  }
+}
+/* Links handed to the owner carry the session too, so clicking round the site stays signed in. */
+const withTok = href => (TOKEN && !STORAGE_OK)
+  ? href + (href.includes('?') ? '&' : '?') + 'tok=' + encodeURIComponent(TOKEN)
+  : href;
+
+/* Sends the token as a header first. If a proxy strips that header, or the
+   browser drops the cookie, we retry with the token in the query string — a
+   plain request nothing can object to. This is what makes the panel work in
+   locked-down preview panes. */
+function send(path, opts, viaQuery) {
+  const headers = Object.assign(
+    { 'Content-Type': 'application/json' },
+    (!viaQuery && TOKEN) ? { 'X-Xiks-Token': TOKEN } : {},
+    opts.headers || {});
+  const url = (viaQuery && TOKEN)
+    ? path + (path.includes('?') ? '&' : '?') + 'tok=' + encodeURIComponent(TOKEN)
+    : path;
+  return fetch(url, Object.assign({}, opts, { credentials: 'same-origin', headers }));
+}
+async function api(path, opts = {}) {
+  let r;
+  try {
+    r = await send(path, opts, false);
+    if (r.status === 401 && TOKEN) r = await send(path, opts, true);   // header was stripped
+  } catch (netErr) {
+    try {
+      if (!TOKEN) throw netErr;
+      r = await send(path, opts, true);                                // header blocked outright
+    } catch {
+      const e = new Error('Cannot reach the store server — is it still running?');
+      throw e;                                 // no .status => treated as "offline"
+    }
+  }
+  const ct = r.headers.get('content-type') || '';
+  let data;
+  try { data = ct.includes('json') ? await r.json() : await r.text(); }
+  catch { data = {}; }
+  if (!r.ok) {
+    const msg = (data && data.error) || (r.status === 401 ? 'Your session expired — please sign in again'
+                                                          : r.statusText || 'Request failed');
+    const e = new Error(msg); e.status = r.status; throw e;
+  }
+  return data;
+}
+
+/* ============ one request: is the server reachable, and am I signed in? ============
+   A signed-out session answers 200 with {user:null} (so public pages stay quiet in
+   the console), so the BODY decides — never the status code alone. */
+(async () => {
+  const el = $('#connState');
+  const set = (html, colour) => { el.innerHTML = html; el.style.color = colour; };
+  let r;
+  try {
+    r = await fetch('api/admin/session', {
+      credentials: 'same-origin',
+      headers: Object.assign({ Accept: 'application/json' }, TOKEN ? { 'X-Xiks-Token': TOKEN } : {}),
+    });
+    const s = r.ok ? await r.json().catch(() => null) : null;
+    if (s && s.open) showOpenBar(true);
+    if (s && s.user) {                       // session on this device (cookie, storage or link)
+      set('&#9679; Connected &mdash; signing you in&hellip;', 'var(--ok)');
+      if (!TOKEN && s.token) setToken(s.token);
+      refreshExtLinks();
+      return enter(s.user);
+    }
+    set('&#9679; Connected to the store server &mdash; sign in below', 'var(--ok)');
+    clearUrlToken();                         /* any ?tok= here was stale — drop it */
+    setToken('');
+  } catch {
+    set('&#9888; This page is not connected to the store server.<br>' +
+        '<span style="display:inline-block;margin-top:6px">Start it with <code>node server.js</code> and open the address ' +
+        'it prints (usually <b>http://localhost:8080/admin</b>). A plain file or preview copy has no backend to sign in to.</span>',
+        'var(--bad)');
+  }
+})();
+
+async function doLogin() {
+  const u = $('#u').value.trim(), p = $('#p').value;
+  if (!u && !p) { $('#loginMsg').textContent = 'Enter your username and password.'; return; }
+  if (!u) { $('#loginMsg').textContent = 'Enter your username.'; $('#u').focus(); return; }
+  if (!p) { $('#loginMsg').textContent = 'Enter your password.'; $('#p').focus(); return; }
+  $('#loginMsg').textContent = 'Signing in…';
+  try {
+    let r;
+    try {
+      const remember = $('#remember') ? $('#remember').checked : true;
+      r = await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ username: u, password: p, remember }) });
+    } catch (first) {
+      if (first.status) throw first;                    // the server answered (e.g. wrong password)
+      /* the request never got there as JSON — send a plain form instead */
+      const rr = await fetch('api/admin/login', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ username: u, password: p, remember: String($('#remember') ? $('#remember').checked : true) }),
+      });
+      r = await rr.json();
+      if (!rr.ok) { const e = new Error(r.error || 'Sign-in failed'); e.status = rr.status; throw e; }
+    }
+    $('#loginMsg').textContent = '';
+    setToken(r.token);
+    refreshExtLinks();
+    toast(r.days && r.days > 7 ? 'Signed in — this device stays signed in for ' + r.days + ' days'
+                               : 'Signed in');
+    enter(r.user);
+  } catch (err) {
+    const offline = !err.status;          /* no HTTP status = request never reached a server */
+    $('#loginMsg').innerHTML = offline
+      ? 'Cannot reach the store server from this page.<br>' +
+        '<span style="font-size:12px">Run <code>node server.js</code> and open the address it prints ' +
+        '(usually <b>http://localhost:8080/admin</b>). A plain file or preview copy cannot sign in.</span>'
+      : esc(err.message) + (err.status && err.status !== 401 ? '<br><span style="font-size:12px">The server answered HTTP ' + err.status + '.</span>' : '');
+    $('#p').value = '';
+    if (offline && window.runLoginCheck) window.runLoginCheck();   /* show what this page can and cannot reach */
+  }
+}
+/* A preview pane may sandbox the page so that form submits are blocked
+   ("allow-forms" missing) — the button drives the sign-in itself. */
+/* Username AND password are required — the button stays disabled until both are filled. */
+function updateLoginBtn() {
+  const btn = $('#loginGo'); if (!btn) return;
+  const ready = $('#u').value.trim().length > 0 && $('#p').value.length > 0;
+  btn.disabled = !ready;
+  btn.title = ready ? '' : 'Enter your username and password';
+  if (ready && /Enter your username and password/i.test($('#loginMsg').textContent)) $('#loginMsg').textContent = '';
+}
+['#u', '#p'].forEach(sel => {
+  const el = $(sel); if (el) { el.addEventListener('input', updateLoginBtn); el.addEventListener('change', updateLoginBtn); }
+});
+updateLoginBtn();
+$('#loginGo').addEventListener('click', doLogin);
+document.addEventListener('click', e => {
+  if (!e.target.closest('#showPw')) return;
+  const f = $('#p'), btn = $('#showPw');
+  const shown = f.type === 'text';
+  f.type = shown ? 'password' : 'text';
+  btn.textContent = shown ? 'Show password' : 'Hide password';
+  f.focus();
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('#freshCopy')) return;
+  location.replace(location.pathname + '?fresh=' + Date.now());
+});
+function runLoginCheck() {
+  const out = $('#loginDiag');
+  if (!out) return;
+  out.classList.remove('hide');
+  out.textContent = 'Checking…';
+  const lines = [`page        : ${location.origin}${location.pathname}`,
+                 `admin build : ${BUILD}`,
+                 `served from : ${location.protocol}//${location.host}`];
+  const ask = (label, path, opts) => fetch(path, Object.assign({ credentials: 'same-origin' }, opts))
+    .then(async r => { const t = await r.text(); lines.push(`${label.padEnd(11)}: HTTP ${r.status}  ${t.slice(0, 90)}`); })
+    .catch(err => lines.push(`${label.padEnd(11)}: no answer — ${err.message}`));
+  (async () => {
+    await ask('session', 'api/admin/session', { headers: { Accept: 'application/json' } });
+    await ask('catalogue', 'api/products', { headers: { Accept: 'application/json' } });
+    const t = TOKEN ? 'yes' : 'no (cookies alone are enough on a normal host)';
+    lines.push(`token saved : ${t}`);
+    lines.push('', 'Wrong password shows "Wrong username or password".');
+    lines.push('A build older than r5 on screen means a cached copy — use "Load a fresh copy".');
+    out.textContent = lines.join('\n');
+  })();
+}
+window.runLoginCheck = runLoginCheck;
+document.addEventListener('click', e => { if (e.target.closest('#loginCheck')) runLoginCheck(); });
+$('#loginForm').addEventListener('submit', e => { e.preventDefault(); doLogin(); });
+$('#p').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doLogin(); } });
+$('#u').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doLogin(); } });
+
+addEventListener('unhandledrejection', ev => {
+  const msg = String(ev.reason?.message || '');
+  if (/session expired|Not signed in/i.test(msg)) {
+    setToken('');
+    $('#app').classList.remove('on');
+    $('#login').style.display = '';
+    $('#loginMsg').textContent = 'Your session expired — please sign in again.';
+  }
+});
+
+function enter(user) {
+  $('#login').style.display = 'none';
+  $('#app').classList.add('on');
+  $('#whoami').textContent = 'signed in as ' + user;
+  $('#dashDate').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  loadDashboard(); loadProducts();
+}
+const _stamp = $('#buildStamp'); if (_stamp) _stamp.textContent = BUILD;
+
+/* Open mode (server started with OPEN_ADMIN=1): say so, loudly, on every screen. */
+function showOpenBar(on) {
+  const bar = $('#openBar'); if (!bar) return;
+  bar.classList.toggle('hide', !on);
+  document.body.classList.toggle('openmode', !!on);
+  const out = $('#logout'); if (out) out.textContent = on ? 'Password off' : 'Sign out';
+  if (on) out.disabled = true; else out.disabled = false;
+}
+
+/* Show the owner a link that opens the panel directly (only once signed in). */
+function paintDirectLink() {
+  const row = $('#directRow'); if (!row) return;
+  if (!TOKEN) return row.classList.add('hide');
+  row.classList.remove('hide');
+  const url = location.origin + location.pathname + '?tok=' + encodeURIComponent(TOKEN);
+  $('#directLink').value = url;
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#copyDirect')) return;
+  const v = $('#directLink').value;
+  const done = () => toast('Link copied — save it somewhere safe');
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(v).then(done, () => { $('#directLink').select(); done(); });
+  else { $('#directLink').select(); document.execCommand?.('copy'); done(); }
+});
+function refreshExtLinks() {
+  document.querySelectorAll('a[data-ext]').forEach(a => {
+    const base = a.dataset.base || a.getAttribute('href');
+    a.dataset.base = base;
+    const next = withTok(base);
+    if (a.getAttribute('href') !== next) a.setAttribute('href', next);
+  });
+}
+$('#logout').addEventListener('click', async () => {
+  await api('/api/admin/logout', { method: 'POST' }).catch(() => {});
+  setToken('');
+  clearUrlToken();
+  location.reload();
+});
+
+/* ============================================================ tabs */
+$$('.nav button').forEach(b => b.addEventListener('click', () => {
+  $$('.nav button').forEach(x => x.classList.toggle('on', x === b));
+  $$('main [data-panel]').forEach(p => p.classList.toggle('hide', p.dataset.panel !== b.dataset.tab));
+  if (b.dataset.tab === 'orders') loadOrders();
+  if (b.dataset.tab === 'settings') loadSettings();
+  if (b.dataset.tab === 'dash') loadDashboard();
+}));
+
+/* ============================================================ dashboard */
+async function loadDashboard() {
+  try {
+    const s = await api('/api/admin/stats');
+    $('#pillPending').textContent = s.pending;
+    $('#stats').innerHTML = `
+      <div class="stat accent"><b>${s.pending}</b><small>Pending orders</small></div>
+      <div class="stat"><b>${s.today}</b><small>Orders today</small></div>
+      <div class="stat"><b>${s.orders}</b><small>Orders all time</small></div>
+      <div class="stat"><b>${money(s.revenue)}</b><small>Revenue (excl. cancelled)</small></div>
+      <div class="stat"><b>${s.shipped}</b><small>In transit</small></div>
+      <div class="stat"><b>${s.products}</b><small>Live products</small></div>`;
+    if (s.database) { const b = $('#dbBadge'); if (b) b.textContent = 'database: ' + s.database; }
+    $('#recent').innerHTML = s.recent.length ? table(s.recent, true) : '<p class="empty">No orders yet — share your store link.</p>';
+  } catch (e) { toast(e.message, true); }
+}
+$('#refreshDash').addEventListener('click', loadDashboard);
+
+function table(rows, compact) {
+  return `<table><thead><tr>
+      <th>Ref</th><th>Placed</th><th>Customer</th><th>City</th><th>Total</th><th>Status</th>
+    </tr></thead><tbody>
+    ${rows.map(o => `<tr class="clickable" data-ref="${esc(o.ref)}">
+      <td><b>${esc(o.ref)}</b></td>
+      <td>${when(o.createdAt)}</td>
+      <td>${esc(o.customer?.name || o.name)}</td>
+      <td>${esc(o.customer?.city || o.city || '—')}</td>
+      <td>${money(o.total)}</td>
+      <td><span class="tag ${esc(o.status)}">${esc(o.status)}</span></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+document.addEventListener('click', e => {
+  const tr = e.target.closest('tr[data-ref]');
+  if (tr) openOrder(tr.dataset.ref);
+});
+
+/* ============================================================ orders */
+async function loadOrders() {
+  const q = $('#oq').value.trim(), st = $('#ostatus').value, from = $('#ofrom').value, to = $('#oto').value;
+  const qs = new URLSearchParams({ status: st, q, from, to });
+  try {
+    const { orders } = await api('/api/admin/orders?' + qs);
+    $('#ordersWrap').innerHTML = orders.length ? `<table><thead><tr>
+      <th>Ref</th><th>Placed</th><th>Customer</th><th>City</th><th>Items</th><th>Total</th><th>Status</th><th></th>
+      </tr></thead><tbody>${orders.map(o => `
+        <tr class="clickable" data-ref="${esc(o.ref)}">
+          <td><b>${esc(o.ref)}</b></td>
+          <td>${when(o.createdAt)}</td>
+          <td>${esc(o.customer.name)}<br><small style="color:var(--taupe-deep)">${esc(o.customer.phone)}</small></td>
+          <td>${esc(o.customer.city || '—')}</td>
+          <td><div class="thumbs">${o.items.slice(0, 3).map(i => `<img src="${esc(i.image)}" alt="">`).join('')}
+              ${o.items.length > 3 ? `<span style="align-self:center;font-size:11px">+${o.items.length - 3}</span>` : ''}</div></td>
+          <td>${money(o.total)}</td>
+          <td><span class="tag ${esc(o.status)}">${esc(o.status)}</span></td>
+          <td>${esc(o.courier || '')}${o.trackingNo ? '<br><small>' + esc(o.trackingNo) + '</small>' : ''}</td>
+        </tr>`).join('')}</tbody></table>`
+      : '<p class="empty">No orders match those filters.</p>';
+  } catch (e) { toast(e.message, true); }
+}
+['oq','ostatus','ofrom','oto'].forEach(id => $('#' + id).addEventListener('input', debounce(loadOrders, 260)));
+$('#oclear').addEventListener('click', () => {
+  $('#oq').value = ''; $('#ostatus').value = 'all'; $('#ofrom').value = ''; $('#oto').value = ''; loadOrders();
+});
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+/* ---------- order drawer ---------- */
+let currentOrder = null;
+async function openOrder(ref) {
+  try {
+    const { order } = await api('/api/admin/orders/' + ref);
+    currentOrder = order;
+    $('#drawerTitle').textContent = 'Order ' + order.ref;
+    $('#drawerBody').innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <span class="tag ${esc(order.status)}">${esc(order.status)}</span>
+        <small style="color:var(--taupe-deep)">${when(order.createdAt)} · via ${esc(order.channel)}</small>
+      </div>
+      <div class="kv">
+        <b>Customer</b><span>${esc(order.customer.name)}</span>
+        <b>Phone</b><span><a href="tel:${esc(order.customer.phone)}">${esc(order.customer.phone)}</a>
+          ${order.customer.phone ? `· <a href="https://wa.me/${esc(String(order.customer.phone).replace(/\\D/g,''))}" target="_blank">WhatsApp</a>` : ''}</span>
+        <b>City</b><span>${esc(order.customer.city || '—')}</span>
+        <b>Address</b><span>${esc(order.customer.address)}</span>
+        ${order.customer.notes ? `<b>Notes</b><span>${esc(order.customer.notes)}</span>` : ''}
+      </div>
+      <h3 style="font-size:19px;margin:18px 0 6px">Items</h3>
+      ${order.items.map(i => `<div class="lineitem">
+          <img src="${esc(i.image)}" alt="">
+          <div><div class="t">${esc(i.name)}</div>
+          <div class="m">${esc(i.size ? 'Size ' + i.size + ' · ' : '')}${i.qty} × ${money(i.price)}</div></div>
+          <div class="amt">${money(i.line)}</div></div>`).join('')}
+      <div class="kv" style="margin-top:16px">
+        <b>Subtotal</b><span>${money(order.subtotal)}</span>
+        <b>Delivery</b><span>${order.delivery ? money(order.delivery) : 'Free'}</span>
+        <b>Total</b><span><b style="font-family:var(--serif);font-size:20px">${money(order.total)}</b></span>
+      </div>
+      <h3 style="font-size:19px;margin:20px 0 4px">Update</h3>
+      <div class="grid2">
+        <div class="field"><label>Status</label>
+          <select id="o_status">${['pending','confirmed','packed','shipped','delivered','cancelled']
+            .map(s => `<option ${s === order.status ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+        <div class="field"><label>Courier</label><input id="o_courier" value="${esc(order.courier || '')}" placeholder="TCS / Leopards / rider"></div>
+        <div class="field"><label>Tracking number</label><input id="o_track" value="${esc(order.trackingNo || '')}"></div>
+        <div class="field"><label>Delivery charge (Rs)</label><input id="o_delivery" type="number" min="0" value="${Number(order.delivery) || 0}"></div>
+      </div>
+      <div class="field"><label>Note for the timeline (optional)</label><input id="o_note" placeholder="e.g. Dispatched from Hussaini today"></div>
+      <h3 style="font-size:19px;margin:20px 0 4px">Timeline</h3>
+      <ul class="timeline">${order.history.slice().reverse().map(h => `<li>
+        <b style="text-transform:uppercase;font-size:11px;letter-spacing:.14em">${esc(h.status)}</b>
+        <small>${when(h.at)}${h.note ? ' · ' + esc(h.note) : ''}</small></li>`).join('')}</ul>`;
+    $('#drawerFoot').innerHTML = `
+      <button class="btn" id="saveOrder">Save changes</button>
+      <button class="btn ghost" id="printOrder">Print</button>
+      <button class="btn danger" id="delOrder" style="margin-left:auto">Delete</button>`;
+    $('#saveOrder').onclick = saveOrder;
+    $('#printOrder').onclick = () => window.print();
+    $('#delOrder').onclick = delOrder;
+    $('#scrim').classList.add('on'); $('#drawer').classList.add('on');
+  } catch (e) { toast(e.message, true); }
+}
+async function saveOrder() {
+  try {
+    const { order } = await api('/api/admin/orders/' + currentOrder.ref, { method: 'PATCH', body: JSON.stringify({
+      status: $('#o_status').value, courier: $('#o_courier').value, trackingNo: $('#o_track').value,
+      delivery: $('#o_delivery').value, note: $('#o_note').value,
+    }) });
+    toast('Order ' + order.ref + ' → ' + order.status);
+    openOrder(order.ref); loadOrders(); loadDashboard();
+  } catch (e) { toast(e.message, true); }
+}
+async function delOrder() {
+  if (!confirm('Delete order ' + currentOrder.ref + '? This cannot be undone.')) return;
+  await api('/api/admin/orders/' + currentOrder.ref, { method: 'DELETE' });
+  toast('Order deleted'); closeDrawer(); loadOrders(); loadDashboard();
+}
+const closeDrawer = () => { $('#drawer').classList.remove('on'); $('#scrim').classList.remove('on'); };
+$('#drawerX').onclick = closeDrawer;
+$('#scrim').onclick = closeDrawer;
+addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeProduct(); } });
+
+/* ============================================================ products */
+let products = [];
+/* A 401/403 is a session problem, not a network problem — never tell the shop
+   owner the server is unreachable when they simply need to sign in again. */
+function sessionLost(msg) {
+  setToken('');
+  $('#app').classList.remove('on');
+  $('#login').style.display = '';
+  $('#loginMsg').textContent = msg || 'Your session expired — please sign in again.';
+  const el = $('#connState');
+  if (el) { el.innerHTML = '&#9679; Connected to the store server &mdash; sign in below'; el.style.color = 'var(--ok)'; }
+}
+const isAuthError = e => e && (e.status === 401 || e.status === 403);
+const bannerCopy = e => {
+  if (!e.status) return '<b>Not showing products — the admin panel can’t reach the store server.</b>' +
+    '<p>Open <code>http://localhost:8080/admin</code> (the address <code>node server.js</code> prints) instead of a plain file or preview copy. ' +
+    'The list is read from your database, so it stays empty until the server answers.</p>' +
+    '<div class="row"><button class="btn sm" id="retryProducts">Try again</button>' +
+    '<button class="btn ghost sm" id="diagnoseBtn">Run a check</button></div><pre id="diagOut" class="diag hide"></pre>';
+  return '<b>Not showing products — the server refused this request.</b>' +
+    '<p>It answered <b>HTTP ' + e.status + '</b>: ' + esc(e.message) + '</p>' +
+    '<div class="row"><button class="btn sm" id="retryProducts">Try again</button>' +
+    '<button class="btn ghost sm" id="diagnoseBtn">Run a check</button></div><pre id="diagOut" class="diag hide"></pre>';
+};
+
+async function loadProducts() {
+  const warn = $('#productsOffline');
+  try {
+    const r = await api('/api/admin/products');
+    products = r.products;
+    if (r.database) { const b = $('#dbBadge'); if (b) b.textContent = 'database: ' + r.database; }
+    paintDirectLink();
+    warn.classList.add('hide');
+    const cats = [...new Set(products.map(p => p.cat))];
+    $('#catList').innerHTML = cats.map(c => `<option value="${esc(c)}">`).join('');
+    $('#productsWrap').innerHTML = products.length ? `<table><thead><tr>
+        <th>Photo</th><th>Name</th><th>Category</th><th>Price</th><th>Was</th><th>Badge</th><th>Live</th><th></th>
+      </tr></thead><tbody>${products.map(p => `
+        <tr>
+          <td><img class="pimg" src="${esc(p.image)}" alt=""></td>
+          <td><b>${esc(p.name)}</b><br><small style="color:var(--taupe-deep)">${esc(p.id)}</small></td>
+          <td>${esc(p.cat)}</td>
+          <td>${money(p.price)}</td>
+          <td>${p.was ? money(p.was) : '—'}</td>
+          <td>${p.badge ? `<span class="tag pending">${esc(p.badge)}</span>` : '—'}</td>
+          <td><input type="checkbox" data-live="${esc(p.id)}" ${p.active !== false ? 'checked' : ''}></td>
+          <td class="row" style="gap:6px">
+            <button class="btn ghost sm" data-edit="${esc(p.id)}">Edit</button>
+            <button class="btn ghost sm" data-photo="${esc(p.id)}">Photo</button>
+            <button class="btn ghost sm del" data-del="${esc(p.id)}" title="Delete this product">✕</button>
+          </td>
+        </tr>`).join('')}</tbody></table>`
+      : '<p class="empty">No products in the database yet — use <b>+ New product</b> to add your first piece.</p>';
+  } catch (e) {
+    products = [];
+    if (isAuthError(e)) return sessionLost('Your session expired — please sign in again, then reopen Products.');
+    $('#productsWrap').innerHTML = '<p class="empty">Products will appear here once the store server is connected.</p>';
+    warn.innerHTML = bannerCopy(e);
+    warn.classList.remove('hide');
+    toast(e.message, true);
+  }
+}
+document.addEventListener('click', e => { if (e.target.closest('#retryProducts')) loadProducts(); });
+
+/* "Run a check": asks the server the three questions that matter, in plain words. */
+async function diagnose() {
+  const out = $('#diagOut');
+  out.classList.remove('hide');
+  out.textContent = 'Checking…';
+  const lines = [`this page     : ${location.origin}${location.pathname}`,
+                 `admin build   : ${BUILD}`,
+                 `cookie sent   : ${document.cookie ? 'yes' : 'no (blocked or empty — tokens cover this)'}`,
+                 `token stored  : ${TOKEN ? 'yes' : 'no'}`];
+  const probe = async (label, path) => {
+    try {
+      const r = await fetch(path, { credentials: 'same-origin',
+        headers: Object.assign({ Accept: 'application/json' }, TOKEN ? { 'X-Xiks-Token': TOKEN } : {}) });
+      const t = await r.text();
+      let note = '';
+      try {
+        const j = JSON.parse(t);
+        note = j.user ? 'signed in as ' + j.user
+             : Array.isArray(j.products) ? j.products.length + ' products'
+             : j.stats ? j.stats.products + ' products · ' + j.stats.pending + ' pending orders'
+             : j.error ? j.error : (j.database || '');
+      } catch { note = t.slice(0, 60); }
+      lines.push(`${label.padEnd(14)}: HTTP ${r.status}  ${note}`);
+      return r.status;
+    } catch (err) {
+      lines.push(`${label.padEnd(14)}: no answer — ${err.message}`);
+      return 0;
+    }
+  };
+  const s = await probe('session', 'api/admin/session');
+  if (s === 401 || s === 403) lines.push('', 'The server is up; this page just is not signed in. Sign in again.');
+  else if (!s) lines.push('', 'The server did not answer at all — it is not running, or this page is not served by it.');
+  else {
+    await probe('products', 'api/admin/products');
+    await probe('stats', 'api/admin/stats');
+  }
+  out.textContent = lines.join('\n');
+}
+document.addEventListener('click', e => { if (e.target.closest('#diagnoseBtn')) diagnose(); });
+document.addEventListener('change', async e => {
+  const live = e.target.closest('[data-live]');
+  if (live) {
+    try { await api('/api/admin/products/' + live.dataset.live, { method: 'PATCH', body: JSON.stringify({ active: live.checked }) }); toast(live.checked ? 'Now live' : 'Hidden from store'); }
+    catch (err) { toast(err.message, true); }
+  }
+});
+document.addEventListener('click', e => {
+  const edit = e.target.closest('[data-edit]');
+  if (edit) return openProduct(products.find(p => p.id === edit.dataset.edit));
+  const photo = e.target.closest('[data-photo]');
+  if (photo) return openProduct(products.find(p => p.id === photo.dataset.photo), true);
+  const del = e.target.closest('[data-del]');
+  if (del) return deleteProduct(del.dataset.del);
+});
+
+async function deleteProduct(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm('Delete "' + p.name + '" from the store?\n\nTip: untick “Live” instead if you only want to hide it temporarily.')) return;
+  try {
+    await api('/api/admin/products/' + id, { method: 'DELETE' });
+    toast('Deleted: ' + p.name);
+    loadProducts(); loadDashboard();
+  } catch (err) { toast(err.message, true); }
+}
+
+function openProduct(p, focusPhoto) {
+  const f = $('#productForm');
+  f.reset();
+  $('#pmTitle').textContent = p ? 'Edit product' : 'New product';
+  $('#pm_id').value = p?.id || '';
+  $('#pm_name').value = p?.name || '';
+  $('#pm_cat').value = p?.cat || '';
+  $('#pm_price').value = p?.price ?? '';
+  $('#pm_was').value = p?.was ?? '';
+  $('#pm_badge').value = p?.badge || '';
+  $('#pm_rating').value = p?.rating ?? 5;
+  $('#pm_note').value = p?.note || '';
+  $('#pm_image').value = p?.image || '';
+  $('#pm_colors').value = (p?.colors || []).join(', ');
+  $('#pm_active').checked = p ? p.active !== false : true;
+  $('#pm_preview').innerHTML = p?.image ? `<img src="${esc(p.image)}" alt="">` : '';
+  paintSwatches();
+  $('#productModal').classList.add('on');
+  if (focusPhoto) $('#pm_file').click(); else $('#pm_name').focus();
+}
+const closeProduct = () => $('#productModal').classList.remove('on');
+$('#pmX').onclick = closeProduct; $('#pmCancel').onclick = closeProduct;
+$('#addProduct').onclick = () => openProduct(null);
+$('#pm_colors').addEventListener('input', paintSwatches);
+function paintSwatches() {
+  const cols = $('#pm_colors').value.split(',').map(s => s.trim()).filter(Boolean);
+  $('#pm_swatches').innerHTML = cols.map(c => `<span class="chip"><span class="swatch" style="background:${esc(c)}"></span>${esc(c)}</span>`).join('');
+}
+
+/* photo picker */
+const drop = $('#pm_drop'), fileInput = $('#pm_file');
+drop.addEventListener('click', () => fileInput.click());
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => { const f = e.dataTransfer.files?.[0]; if (f) uploadPhoto(f); });
+fileInput.addEventListener('change', () => { const f = fileInput.files?.[0]; if (f) uploadPhoto(f); });
+
+async function uploadPhoto(file) {
+  if (!/^image\//.test(file.type)) return toast('That is not an image', true);
+  if (file.size > 8 * 1024 * 1024) return toast('Image must be under 8 MB', true);
+  const dataUrl = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(file); });
+  const localId = $('#pm_id').value;
+  toast('Uploading photo…');
+  try {
+    const { path } = await api('/api/admin/upload', { method: 'POST', body: JSON.stringify({ name: ($('#pm_name').value || 'photo').toLowerCase().replace(/\s+/g, '-').slice(0, 30), dataUrl }) });
+    $('#pm_image').value = path;
+    $('#pm_preview').innerHTML = `<img src="${esc(path)}" alt="">`;
+    if (localId) {                       // editing an existing product: save it straight away
+      await api('/api/admin/products/' + localId, { method: 'PATCH', body: JSON.stringify({ image: path }) });
+      toast('Photo updated'); loadProducts();
+    } else {
+      toast('Photo ready — press Save product');
+    }
+  } catch (e) { toast(e.message, true); }
+}
+
+async function saveProduct() {
+  const id = $('#pm_id').value;
+  const payload = {
+    name: $('#pm_name').value.trim(), cat: $('#pm_cat').value.trim(),
+    price: Number($('#pm_price').value) || 0,
+    was: $('#pm_was').value ? Number($('#pm_was').value) : null,
+    badge: $('#pm_badge').value.trim(), rating: Number($('#pm_rating').value) || 5,
+    note: $('#pm_note').value.trim(), image: $('#pm_image').value.trim(),
+    colors: $('#pm_colors').value.split(',').map(s => s.trim()).filter(Boolean),
+    active: $('#pm_active').checked,
+  };
+  try {
+    if (id) { await api('/api/admin/products/' + id, { method: 'PATCH', body: JSON.stringify(payload) }); toast('Product updated'); }
+    else { await api('/api/admin/products', { method: 'POST', body: JSON.stringify(payload) }); toast('Product added'); }
+    closeProduct(); loadProducts(); loadDashboard();
+  } catch (err) { toast(err.message, true); }
+}
+$('#pmSave').addEventListener('click', saveProduct);
+$('#productForm').addEventListener('submit', e => { e.preventDefault(); saveProduct(); });
+
+/* ============================================================ settings */
+async function loadSettings() {
+  try {
+    const { settings: s, database } = await api('/api/admin/settings');
+    const t = $('#dbPanelText');
+    if (t) {
+      const supa = /supabase/i.test(database || '');
+      t.innerHTML = supa
+        ? '<b>Supabase</b> — ' + esc(database) + '<br>Your products and orders live in your Supabase project, so they survive restarts and redeploys. Manage them in the Supabase dashboard, or just keep using this panel.'
+        : '<b>Local JSON files</b> — data/*.json on this server.<br>Works fine, but on hosts that reset the filesystem (free tiers, containers) your data can be wiped on redeploy. Switch to Supabase below to make it permanent.';
+    }
+    for (const k of ['storeName','instagram','whatsapp','facebook','address','deliveryNote','freeOver','categories']) {
+      const el = $('#s_' + k); if (!el) continue;
+      el.value = Array.isArray(s[k]) ? s[k].join(', ') : (s[k] ?? '');
+    }
+  } catch (e) { toast(e.message, true); }
+}
+document.addEventListener('click', e => { if (e.target.closest('#dbRefresh')) loadSettings(); });
+$('#saveSettings').addEventListener('click', async () => {
+  const payload = {};
+  for (const k of ['storeName','instagram','whatsapp','facebook','address','deliveryNote']) payload[k] = $('#s_' + k).value.trim();
+  payload.freeOver = Number($('#s_freeOver').value) || 0;
+  payload.categories = $('#s_categories').value.split(',').map(s => s.trim()).filter(Boolean);
+  try { await api('/api/admin/settings', { method: 'PATCH', body: JSON.stringify(payload) }); toast('Settings saved'); }
+  catch (e) { toast(e.message, true); }
+});
+$('#savePassword').addEventListener('click', async () => {
+  const cur = $('#pw_cur').value, next = $('#pw_new').value, rep = $('#pw_rep').value;
+  if (next !== rep) return toast('New passwords do not match', true);
+  if (next.length < 8) return toast('Use at least 8 characters', true);
+  try {
+    await api('/api/admin/password', { method: 'POST', body: JSON.stringify({ current: cur, next }) });
+    $('#pw_cur').value = $('#pw_new').value = $('#pw_rep').value = '';
+    toast('Password updated');
+  } catch (e) { toast(e.message, true); }
+});
+
+</script>
+</body>
+</html>

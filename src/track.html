@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track your order · Xiks Collection</title>
+<meta name="description" content="Track your Xiks Collection order — enter your order number to see its status.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232B241F'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='16' fill='%23F7F1E7' text-anchor='middle'%3EX%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --cream:#F7F1E7;--ivory:#FFFCF7;--sand:#E9DBC8;--taupe:#B7A28B;--taupe-deep:#8E7962;
+  --blush:#E8C9C3;--ink:#2B241F;--ink-soft:#6D5D50;--gold:#B08D57;--line:rgba(43,36,31,.12);
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --shadow:0 24px 50px -28px rgba(60,45,32,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+a{color:inherit}
+.bg{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bg i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;mix-blend-mode:multiply}
+.bg i:nth-child(1){width:52vw;aspect-ratio:1;left:-14vw;top:-10vw;background:radial-gradient(circle,#F6DCD3,transparent 70%);animation:d1 24s ease-in-out infinite alternate}
+.bg i:nth-child(2){width:44vw;aspect-ratio:1;right:-12vw;top:24vh;background:radial-gradient(circle,#EADCC4,transparent 70%);animation:d2 30s ease-in-out infinite alternate}
+@keyframes d1{to{transform:translate(7vw,5vh) scale(1.12)}}
+@keyframes d2{to{transform:translate(-6vw,8vh) scale(1.08)}}
+.shell{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:34px 20px 90px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-family:var(--serif);font-size:24px;letter-spacing:.26em;text-indent:.26em}
+.back{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--taupe-deep);border-bottom:1px solid transparent}
+.back:hover{color:var(--ink);border-color:var(--ink)}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,7vw,58px);line-height:1.05;margin:34px 0 0}
+.lede{color:var(--ink-soft);margin-top:14px;max-width:52ch}
+.card{background:var(--ivory);border-radius:20px;padding:26px;box-shadow:var(--shadow);margin-top:26px;border:1px solid rgba(255,255,255,.7)}
+form{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+label.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+input{flex:1;min-width:190px;padding:15px 18px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;outline:none;transition:box-shadow .3s,border-color .3s}
+input:focus{border-color:var(--blush);box-shadow:0 0 0 4px rgba(232,201,195,.45)}
+button{padding:15px 26px;border:0;border-radius:100px;background:var(--ink);color:var(--ivory);font:inherit;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:transform .3s,box-shadow .3s}
+button:hover{transform:translateY(-2px);box-shadow:0 16px 28px -16px rgba(43,36,31,.6)}
+.msg{margin-top:14px;font-size:13.5px;color:#B4432F;min-height:20px}
+.hide{display:none !important}
+.tag{display:inline-block;padding:5px 13px;border-radius:100px;font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+.tag.pending{background:#F4E3C4;color:#7A5A12}
+.tag.confirmed{background:#DCE7F5;color:#274E7D}
+.tag.packed{background:#E5E0F0;color:#4B3D7A}
+.tag.shipped{background:#D6EBE0;color:#226047}
+.tag.delivered{background:#CFE7DA;color:#1F5138}
+.tag.cancelled{background:#F5D9D3;color:#8A3020}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.ref{font-family:var(--serif);font-size:30px}
+.sub{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe-deep)}
+.progress{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:26px 0 8px}
+.progress div{height:5px;border-radius:4px;background:rgba(43,36,31,.1)}
+.progress div.on{background:var(--ink)}
+.progress div.bad{background:#B4432F}
+.steps{display:flex;justify-content:space-between;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe-deep)}
+.items{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}
+.item{display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(43,36,31,.06)}
+.item img{width:62px;height:62px;border-radius:12px;object-fit:cover;background:var(--sand)}
+.item .t{font-family:var(--serif);font-size:18px}
+.item .m{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe-deep)}
+.item .amt{margin-left:auto;font-family:var(--serif);font-size:18px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:14px;margin-top:18px}
+.kv b{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--taupe-deep);font-weight:600;padding-top:5px}
+.totals{display:flex;justify-content:space-between;margin-top:16px;font-size:14px}
+.totals.big{font-family:var(--serif);font-size:22px;border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.timeline{list-style:none;padding:0;margin:20px 0 0;border-left:1px solid var(--line)}
+.timeline li{position:relative;padding:0 0 16px 20px}
+.timeline li::before{content:"";position:absolute;left:-5px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--taupe)}
+.timeline li:first-child::before{background:var(--ink)}
+.timeline small{display:block;color:var(--taupe-deep);font-size:11.5px}
+.help{margin-top:30px;font-size:13.5px;color:var(--ink-soft);text-align:center}
+.help a{border-bottom:1px solid var(--line)}
+.help a:hover{border-color:var(--ink);color:var(--ink)}
+@media (max-width:560px){.steps{font-size:8px}.ref{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i></div>
+<div class="shell">
+  <header class="top">
+    <a class="brand" href="/">XIKS</a>
+    <a class="back" href="/">← Back to store</a>
+  </header>
+
+  <h1>Track your order</h1>
+  <p class="lede">Enter the order number we sent you (it looks like <b>XK-2610-0007</b>). Your phone number is optional —
+    add it if you want us to double-check you are the right person.</p>
+
+  <div class="card">
+    <form id="trackForm" novalidate>
+      <label class="sr" for="ref">Order number</label>
+      <input id="ref" placeholder="XK-2610-0007" autocomplete="off" required>
+      <label class="sr" for="phone">Phone number</label>
+      <input id="phone" placeholder="Phone (optional)" inputmode="tel" autocomplete="tel">
+      <button type="button" id="trackGo">Track</button>
+    </form>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div id="result" class="hide"></div>
+
+  <p class="help">Something wrong with your order? Message us on
+    <a href="https://www.instagram.com/xiks.collection" target="_blank" rel="noopener">@xiks.collection</a>
+    — we reply the same day.</p>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const money = n => 'Rs ' + Number(n || 0).toLocaleString('en-US');
+const when = iso => new Date(iso).toLocaleString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+const ORDER = ['pending','confirmed','packed','shipped','delivered'];
+const LABEL = { pending:'Received', confirmed:'Confirmed', packed:'Packed', shipped:'Shipped', delivered:'Delivered', cancelled:'Cancelled' };
+
+async function doTrack() {
+  const ref = $('#ref').value.trim(), phone = $('#phone').value.trim();
+  if (!ref) return;
+  $('#msg').textContent = 'Looking…';
+  try {
+    const r = await fetch('api/track?ref=' + encodeURIComponent(ref) + '&phone=' + encodeURIComponent(phone));
+    const o = await r.json();
+    if (!r.ok) throw new Error(o.error || 'Not found');
+    $('#msg').textContent = '';
+    render(o);
+  } catch (err) {
+    $('#result').classList.add('hide');
+    $('#msg').textContent = err.message;
+  }
+}
+/* preview panes may block form submits — the button drives the lookup itself */
+$('#trackGo').addEventListener('click', doTrack);
+$('#trackForm').addEventListener('submit', e => { e.preventDefault(); doTrack(); });
+$('#phone').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doTrack(); } });
+$('#ref').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doTrack(); } });
+
+function render(o) {
+  const idx = ORDER.indexOf(o.status);
+  const cancelled = o.status === 'cancelled';
+  const bars = ORDER.map((s, i) => {
+    if (cancelled) return `<div class="${i === 0 ? 'bad' : ''}"></div>`;
+    return `<div class="${i <= idx ? 'on' : ''}"></div>`;
+  }).join('');
+  $('#result').innerHTML = `
+    <div class="card">
+      <div class="head">
+        <div>
+          <div class="sub">Order</div>
+          <div class="ref">${esc(o.ref)}</div>
+          <div style="font-size:13px;color:var(--ink-soft);margin-top:4px">Placed ${when(o.createdAt)}</div>
+        </div>
+        <span class="tag ${esc(o.status)}">${esc(LABEL[o.status] || o.status)}</span>
+      </div>
+
+      <div class="progress">${bars}</div>
+      <div class="steps">${ORDER.map(s => `<span>${LABEL[s]}</span>`).join('')}</div>
+
+      ${o.courier || o.trackingNo ? `<div class="kv">
+        ${o.courier ? `<b>Courier</b><span>${esc(o.courier)}</span>` : ''}
+        ${o.trackingNo ? `<b>Courier ref</b><span>${esc(o.trackingNo)}</span>` : ''}
+      </div>` : ''}
+
+      <div class="items">
+        ${o.items.map(i => `<div class="item">
+          <img src="${esc(i.image)}" alt="">
+          <div><div class="t">${esc(i.name)}</div>
+          <div class="m">${esc(i.size ? 'Size ' + i.size + ' · ' : '')}${i.qty} × ${money(i.price)}</div></div>
+          <div class="amt">${money(i.line)}</div>
+        </div>`).join('')}
+      </div>
+
+      <div class="totals"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
+      <div class="totals"><span>Delivery</span><span>${o.delivery ? money(o.delivery) : 'Free'}</span></div>
+      <div class="totals big"><span>Total</span><span>${money(o.total)}</span></div>
+
+      <div class="kv">
+        <b>Delivering to</b><span>${esc(o.customerName)}, ${esc(o.customerCity || '—')}</span>
+      </div>
+
+      <h3 style="font-family:var(--serif);font-weight:400;font-size:20px;margin:24px 0 0">Progress</h3>
+      <ul class="timeline">${o.history.slice().reverse().map(h => `<li>
+        <b style="text-transform:uppercase;font-size:11px;letter-spacing:.14em">${esc(LABEL[h.status] || h.status)}</b>
+        <small>${when(h.at)}${h.note ? ' · ' + esc(h.note) : ''}</small></li>`).join('')}</ul>
+    </div>`;
+  $('#result').classList.remove('hide');
+  $('#result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>

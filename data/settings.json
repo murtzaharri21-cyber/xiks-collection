@@ -1,0 +1,27 @@
+{
+  "storeName": "Xiks Collection",
+  "whatsapp": "",
+  "facebook": "",
+  "instagram": "https://www.instagram.com/xiks.collection",
+  "address": "KKH Road, Hussaini, Gojal Hunza, Gilgit-Baltistan",
+  "deliveryNote": "Courier across Pakistan in 3–5 days · cash on delivery available",
+  "freeOver": 0,
+  "currency": "PKR",
+  "categories": [
+    "Jackets",
+    "Track Pants",
+    "Tracksuits",
+    "Sweaters",
+    "Sets",
+    "Accessories"
+  ],
+  "statuses": [
+    "pending",
+    "confirmed",
+    "packed",
+    "shipped",
+    "delivered",
+    "cancelled"
+  ],
+  "hours": ""
+}
