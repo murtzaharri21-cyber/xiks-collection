@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin · Xiks Collection</title>
+<title>Xiks Collection — Admin</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232B241F'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='16' fill='%23F7F1E7' text-anchor='middle'%3EX%3C/text%3E%3C/svg%3E">
 <style>
@@ -32,7 +32,7 @@ input,select,textarea{font:inherit;color:inherit}
 }
 .login-card::after{content:"";position:absolute;width:70%;aspect-ratio:1;right:-25%;top:-30%;border-radius:50%;
   background:radial-gradient(circle,rgba(232,201,195,.5),transparent 70%)}
-.login-card h1{font-size:34px;letter-spacing:.24em;text-indent:.24em;text-align:center}
+.login-card h1{font-size:27px;letter-spacing:.02em;text-indent:.02em;text-align:center;white-space:nowrap}
 .login-card .sub{text-align:center;font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--taupe-deep);margin-top:10px}
 .field{margin-top:16px}
 .field label{display:block;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--taupe-deep);margin-bottom:7px}
@@ -62,7 +62,7 @@ input,select,textarea{font:inherit;color:inherit}
   background:var(--ink);color:var(--ivory);padding:26px 20px;display:flex;flex-direction:column;gap:8px;
   position:sticky;top:0;height:100svh
 }
-#app>aside .brand{font-family:var(--serif);font-size:24px;letter-spacing:.24em;text-indent:.24em;margin-bottom:6px}
+#app>aside .brand{font-family:var(--serif);font-size:18px;letter-spacing:.01em;margin-bottom:6px}
 #app>.openbar{
   position:fixed;left:0;right:0;top:0;z-index:60;background:#B3261E;color:#FFF6F4;
   padding:9px 18px;font-size:12.5px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;
@@ -192,7 +192,6 @@ tr.clickable:hover{background:rgba(232,201,195,.18)}
   margin:12px 0 0;padding:12px 14px;background:rgba(43,36,31,.06);border-radius:9px;
   font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;color:#4A3B22
 }
-.build{font-size:10.5px;letter-spacing:.08em;color:var(--taupe-deep);opacity:.75}
 .remember{display:flex;align-items:center;gap:9px;margin:2px 0 14px;font-size:13px;color:var(--ink-soft);cursor:pointer}
 .remember input{width:16px;height:16px;accent-color:var(--ink)}
 .remember small{color:var(--taupe-deep)}
@@ -224,9 +223,8 @@ tr.clickable:hover{background:rgba(232,201,195,.18)}
 <!-- ============================ LOGIN ============================ -->
 <section id="login">
   <form class="login-card" id="loginForm" autocomplete="on">
-    <h1>XIKS</h1>
-    <div class="sub">Store admin · Hunza</div>
-    <div class="build" id="buildStamp"></div>
+    <h1>Xiks Collection</h1>
+    <div class="sub">Store admin · Hussaini, Gojal Hunza</div>
     <div class="field">
       <label for="u">Username</label>
       <input id="u" name="username" autocomplete="username" required>
@@ -252,7 +250,7 @@ tr.clickable:hover{background:rgba(232,201,195,.18)}
 
 <div id="app">
   <aside>
-    <div class="brand">XIKS</div>
+    <div class="brand">Xiks Collection</div>
     <div class="who" id="whoami">admin</div>
     <nav class="nav">
       <button data-tab="dash" class="on">Dashboard</button>
@@ -433,7 +431,6 @@ function toast(msg, bad) {
    In a preview pane / sandboxed frame the browser blocks cookies, so the panel
    also keeps the server's signed token and sends it as a header. Storage may be
    blocked too, in which case it lives in memory for this page view. */
-const BUILD = 'admin build 2026-10-03 · r5';      /* shown on the card: confirms which copy you are looking at */
 const TOKEN_KEY = 'xiks_admin_token';
 
 /* Can this page keep the session in storage? Sandboxed preview panes say no. */
@@ -630,7 +627,6 @@ function enter(user) {
   $('#dashDate').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   loadDashboard(); loadProducts();
 }
-const _stamp = $('#buildStamp'); if (_stamp) _stamp.textContent = BUILD;
 
 /* Open mode (server started with OPEN_ADMIN=1): say so, loudly, on every screen. */
 function showOpenBar(on) {
@@ -881,7 +877,6 @@ async function diagnose() {
   out.classList.remove('hide');
   out.textContent = 'Checking…';
   const lines = [`this page     : ${location.origin}${location.pathname}`,
-                 `admin build   : ${BUILD}`,
                  `cookie sent   : ${document.cookie ? 'yes' : 'no (blocked or empty — tokens cover this)'}`,
                  `token stored  : ${TOKEN ? 'yes' : 'no'}`];
   const probe = async (label, path) => {
