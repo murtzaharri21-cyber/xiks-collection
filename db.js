@@ -209,12 +209,15 @@ const supa = (() => {
 /* ============================================================== PUBLIC API */
 const driver = USE_SUPABASE ? supa : local;
 
-let cache = null;                       // small in-process cache; refreshed on write
-async function load() {
-  if (!cache) cache = await driver.all();
-  return cache;
-}
-const bust = () => { cache = null; };
+/* Always read fresh.
+   An in-process cache is unsafe on a serverless host: every warm instance keeps
+   its OWN copy, so an instance that loaded the shop while the orders table was
+   empty goes on answering "no orders" for its whole life — even after a
+   customer orders — and reference numbers collide because the counter is read
+   from that stale list. Reads take a few milliseconds; correctness wins.
+   `bust()` is kept so the existing calls still work. */
+async function load() { return driver.all(); }
+const bust = () => {};
 
 const api = {
   get name() { return driver.name; },
@@ -303,8 +306,32 @@ const api = {
     const orders = await api.orders();
     const d = new Date();
     const yymm = String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0');
-    const seq = orders.filter(o => String(o.ref).includes('-' + yymm + '-')).length + 1;
-    return `XK-${yymm}-${String(seq).padStart(4, '0')}`;
+    /* the highest number already used this month — not how many orders exist,
+       so deleting an order can no longer hand out a number that is still taken */
+    let top = 0;
+    const re = new RegExp('^XK-' + yymm + '-(\\d+)$');
+    for (const o of orders) {
+      const mm = re.exec(String(o.ref || ''));
+      if (mm) top = Math.max(top, Number(mm[1]));
+    }
+    return `XK-${yymm}-${String(top + 1).padStart(4, '0')}`;
+  },
+
+  /* Place an order. If two customers click "order" within the same second the
+     generated references can collide; each retry re-reads and takes the next. */
+  async placeOrder(build) {
+    let lastErr;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      try {
+        const order = build();
+        order.ref = await api.nextRef();
+        return await api.createOrder(order);
+      } catch (err) {
+        lastErr = err;
+        if (!/duplicate key|409|conflict/i.test(String(err && err.message))) throw err;
+      }
+    }
+    throw lastErr;
   },
 
   /* ---- settings ---- */

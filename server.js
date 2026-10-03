@@ -302,12 +302,6 @@ function serveFile(res, filePath, cache = 'public, max-age=3600') {
 }
 
 /* -------------------------------------------------------------- orders */
-function nextRef(orders) {
-  const d = new Date();
-  const yymm = String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0');
-  const seq = orders.filter(o => o.ref.includes('-' + yymm + '-')).length + 1;
-  return `XK-${yymm}-${String(seq).padStart(4, '0')}`;
-}
 
 function orderPublicView(o) {
   return {
@@ -368,12 +362,13 @@ async function handleRequest(req, res) {
         if (String(c.phone).replace(/\D/g, '').length < 10)
           return bad(res, 400, 'Please enter a valid phone number');
 
-        const orders = await db.orders();
         const subtotal = items.reduce((s, i) => s + i.line, 0);
         const freeOver = Number(settings.freeOver || 0);
         const delivery = freeOver > 0 && subtotal >= freeOver ? 0 : Number(b.delivery ?? 0);
         const order = {
-          ref: nextRef(orders), createdAt: nowISO(), status: 'pending',
+          /* db.placeOrder below assigns the reference, retrying if two customers
+             generate the same number at the same moment */
+          createdAt: nowISO(), status: 'pending',
           channel: ['website', 'whatsapp', 'instagram'].includes(b.channel) ? b.channel : 'website',
           items, subtotal, delivery, total: subtotal + delivery,
           customer: { name: String(c.name).slice(0, 80), phone: String(c.phone).slice(0, 30),
@@ -382,9 +377,9 @@ async function handleRequest(req, res) {
           courier: '', trackingNo: '',
           history: [{ status: 'pending', at: nowISO(), note: 'Order received' }],
         };
-        await db.createOrder(order);
-        return ok(res, { ref: order.ref, total: order.total, subtotal: order.subtotal,
-                         delivery: order.delivery, status: order.status, message: 'Order placed' });
+        const saved = await db.placeOrder(() => ({ ...order }));
+        return ok(res, { ref: saved.ref, total: saved.total, subtotal: saved.subtotal,
+                         delivery: saved.delivery, status: saved.status, message: 'Order placed' });
       }
 
       /* -- public: track an order -- */

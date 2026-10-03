@@ -653,13 +653,29 @@ $('#logout').addEventListener('click', async () => {
 });
 
 /* ============================================================ tabs */
+let currentTab = 'dash';
 $$('.nav button').forEach(b => b.addEventListener('click', () => {
   $$('.nav button').forEach(x => x.classList.toggle('on', x === b));
   $$('main [data-panel]').forEach(p => p.classList.toggle('hide', p.dataset.panel !== b.dataset.tab));
-  if (b.dataset.tab === 'orders') loadOrders();
-  if (b.dataset.tab === 'settings') loadSettings();
-  if (b.dataset.tab === 'dash') loadDashboard();
+  currentTab = b.dataset.tab;
+  if (currentTab === 'orders') loadOrders();
+  if (currentTab === 'settings') loadSettings();
+  if (currentTab === 'dash') loadDashboard();
 }));
+
+/* Keep the panel live: a new order shows up on its own, without pressing
+   Refresh. Checks every 20 seconds, and straight away whenever you come back to
+   this tab or window. It never runs while a dialog is open, and the Products tab
+   is left alone so it cannot interrupt an edit in progress. */
+function refreshCurrentTab() {
+  if ($('#drawer').classList.contains('on')) return;          // an order is open
+  if ($('#productModal').classList.contains('on')) return;    // a product is being edited
+  if (currentTab === 'dash') loadDashboard();
+  else if (currentTab === 'orders') loadOrders();
+}
+setInterval(refreshCurrentTab, 20000);
+addEventListener('focus', refreshCurrentTab);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshCurrentTab(); });
 
 /* ============================================================ dashboard */
 async function loadDashboard() {
