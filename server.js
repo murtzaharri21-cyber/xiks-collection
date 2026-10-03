@@ -571,6 +571,31 @@ async function handleRequest(req, res) {
         if (history.length !== (o.history || []).length) patch.history = history;
         if ('courier' in b) patch.courier = String(b.courier || '').slice(0, 60);
         if ('trackingNo' in b) patch.trackingNo = String(b.trackingNo || '').slice(0, 60);
+        /* the owner can correct the customer's details too — one wrong digit in a
+           phone number, or half an address, means a phone call and a wasted trip.
+           Name, phone and address stay required so a delivery address is never
+           left blank; city and notes can be cleared. */
+        if (b.customer && typeof b.customer === 'object') {
+          const c = b.customer, next = Object.assign({}, o.customer);
+          if ('name' in c) {
+            const v = String(c.name || '').trim().slice(0, 80);
+            if (!v) return bad(res, 400, "The customer's name cannot be empty");
+            next.name = v;
+          }
+          if ('phone' in c) {
+            const v = String(c.phone || '').trim().slice(0, 30);
+            if (v.replace(/\D/g, '').length < 10) return bad(res, 400, 'Please enter a valid phone number');
+            next.phone = v;
+          }
+          if ('address' in c) {
+            const v = String(c.address || '').trim().slice(0, 300);
+            if (!v) return bad(res, 400, 'The address cannot be empty');
+            next.address = v;
+          }
+          if ('city' in c) next.city = String(c.city || '').trim().slice(0, 60);
+          if ('notes' in c) next.notes = String(c.notes || '').trim().slice(0, 300);
+          patch.customer = next;
+        }
         if ('delivery' in b) {
           patch.delivery = Math.max(0, Number(b.delivery) || 0);
           patch.total = o.subtotal + patch.delivery;
