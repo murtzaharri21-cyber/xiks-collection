@@ -720,7 +720,7 @@ footer{padding:64px var(--gut) 40px;border-top:1px solid var(--line);margin-top:
   .brand{gap:8px}
   .brand .mark{font-size:19px}
   .brand .tag{font-size:8px;letter-spacing:.16em;padding-left:8px}
-  .hd-actions{gap:8px}
+  .hd-actions{gap:8px;margin-left:auto}
   .hd-actions .icon-btn{width:38px;height:38px}
   .burger{display:grid}
   nav.main{display:none}
@@ -821,6 +821,9 @@ footer{padding:64px var(--gut) 40px;border-top:1px solid var(--line);margin-top:
     <div class="hd-actions">
       <a class="icon-btn" href="https://www.instagram.com/xiks.collection" target="_blank" rel="noopener" aria-label="Xiks Collection on Instagram">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a class="icon-btn" href="#" data-social="whatsapp" aria-label="Contact us on WhatsApp" title="Contact us on WhatsApp">
+        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3Z"/><path d="M8.7 8.6c0 3.2 2.5 5.7 5.7 5.7.6 0 1.1-.4 1.1-1l-.2-.9-1.5-.5-.8.8c-1-.5-1.8-1.3-2.3-2.3l.8-.8-.5-1.5-.9-.2c-.6 0-1.4.5-1.4 1.1Z"/></svg>
       </a>
       <button class="icon-btn" id="bagBtn" aria-label="Open shopping bag">
         <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
@@ -1277,7 +1280,7 @@ footer{padding:64px var(--gut) 40px;border-top:1px solid var(--line);margin-top:
   const money = n => 'Rs ' + Number(n).toLocaleString('en-US');
 
   /* ---- boutique settings: edit these two lines when you have them ---- */
-  const WHATSAPP = '';                                   // e.g. '923001234567' (country code, no + or spaces)
+  const WHATSAPP = '923554822878';                       // Pakistan country code, no + or spaces
   const FACEBOOK = '';                                   // e.g. 'https://www.facebook.com/your.page'
   const INSTAGRAM = 'https://www.instagram.com/xiks.collection';
 
@@ -1525,18 +1528,31 @@ footer{padding:64px var(--gut) 40px;border-top:1px solid var(--line);margin-top:
     } catch { return { ok: false, offline: true }; }
   }
 
-  /* footer social links: use real URLs when configured, otherwise Instagram */  /* footer social links: use real URLs when configured, otherwise Instagram */
-  $$('[data-social]').forEach(a => {
-    const kind = a.dataset.social;
-    const wa = SETTINGS.whatsapp || WHATSAPP, fb = SETTINGS.facebook || FACEBOOK;
-    if (kind === 'whatsapp' && wa) a.href = `https://wa.me/${wa}`;
-    else if (kind === 'facebook' && fb) a.href = fb;
-    else {
-      a.href = INSTAGRAM;
-      a.addEventListener('click', () => toast('Add this link in src/app.js'));
-    }
-    if (a.href && a.href !== INSTAGRAM) { a.target = '_blank'; a.rel = 'noopener'; }
-  });
+  function configureSocialLinks() {
+    $$('[data-social]').forEach(a => {
+      const kind = a.dataset.social;
+      const wa = SETTINGS.whatsapp || WHATSAPP, fb = SETTINGS.facebook || FACEBOOK;
+      const url = kind === 'whatsapp' ? (wa ? `https://wa.me/${wa}` : '') :
+        kind === 'facebook' ? fb : INSTAGRAM;
+      if (url) {
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.onclick = null;
+      } else {
+        a.href = '#';
+        a.removeAttribute('target');
+        a.removeAttribute('rel');
+        a.onclick = event => {
+          event.preventDefault();
+          toast(kind === 'whatsapp'
+            ? 'Add a WhatsApp number in Admin → Settings.'
+            : 'Add this link in src/app.js');
+        };
+      }
+    });
+  }
+  configureSocialLinks();
 
   /* ---------------- product grid ---------------- */
   const grid = $('#grid');
@@ -1922,6 +1938,7 @@ footer{padding:64px var(--gut) 40px;border-top:1px solid var(--line);margin-top:
 
   /* ---------------- init ---------------- */
   loadLive().then(() => {
+    configureSocialLinks();
     renderGrid();
     buildFilters();
     if (SETTINGS.deliveryNote) { const d = $('#deliveryLine'); if (d) d.textContent = SETTINGS.deliveryNote; }

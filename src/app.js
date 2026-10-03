@@ -11,7 +11,7 @@
   const money = n => 'Rs ' + Number(n).toLocaleString('en-US');
 
   /* ---- boutique settings: edit these two lines when you have them ---- */
-  const WHATSAPP = '';                                   // e.g. '923001234567' (country code, no + or spaces)
+  const WHATSAPP = '923554822878';                       // Pakistan country code, no + or spaces
   const FACEBOOK = '';                                   // e.g. 'https://www.facebook.com/your.page'
   const INSTAGRAM = 'https://www.instagram.com/xiks.collection';
 
@@ -258,18 +258,31 @@
     } catch { return { ok: false, offline: true }; }
   }
 
-  /* footer social links: use real URLs when configured, otherwise Instagram */  /* footer social links: use real URLs when configured, otherwise Instagram */
-  $$('[data-social]').forEach(a => {
-    const kind = a.dataset.social;
-    const wa = SETTINGS.whatsapp || WHATSAPP, fb = SETTINGS.facebook || FACEBOOK;
-    if (kind === 'whatsapp' && wa) a.href = `https://wa.me/${wa}`;
-    else if (kind === 'facebook' && fb) a.href = fb;
-    else {
-      a.href = INSTAGRAM;
-      a.addEventListener('click', () => toast('Add this link in src/app.js'));
-    }
-    if (a.href && a.href !== INSTAGRAM) { a.target = '_blank'; a.rel = 'noopener'; }
-  });
+  function configureSocialLinks() {
+    $$('[data-social]').forEach(a => {
+      const kind = a.dataset.social;
+      const wa = SETTINGS.whatsapp || WHATSAPP, fb = SETTINGS.facebook || FACEBOOK;
+      const url = kind === 'whatsapp' ? (wa ? `https://wa.me/${wa}` : '') :
+        kind === 'facebook' ? fb : INSTAGRAM;
+      if (url) {
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.onclick = null;
+      } else {
+        a.href = '#';
+        a.removeAttribute('target');
+        a.removeAttribute('rel');
+        a.onclick = event => {
+          event.preventDefault();
+          toast(kind === 'whatsapp'
+            ? 'Add a WhatsApp number in Admin → Settings.'
+            : 'Add this link in src/app.js');
+        };
+      }
+    });
+  }
+  configureSocialLinks();
 
   /* ---------------- product grid ---------------- */
   const grid = $('#grid');
@@ -655,6 +668,7 @@
 
   /* ---------------- init ---------------- */
   loadLive().then(() => {
+    configureSocialLinks();
     renderGrid();
     buildFilters();
     if (SETTINGS.deliveryNote) { const d = $('#deliveryLine'); if (d) d.textContent = SETTINGS.deliveryNote; }
