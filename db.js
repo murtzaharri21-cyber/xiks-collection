@@ -94,7 +94,16 @@ const supa = (() => {
   }
 
   /* product row <-> app object (snake_case <-> camelCase for DB friendliness) */
-  const toProduct = r => ({
+  /* one place that turns an orders row into the shape the app speaks, so an insert
+   or a patch answers with exactly what a plain GET would have answered */
+const toOrder = r => ({
+  ref: r.ref, createdAt: r.created_at, status: r.status, channel: r.channel,
+  items: r.items || [], subtotal: Number(r.subtotal) || 0,
+  delivery: Number(r.delivery) || 0, total: Number(r.total) || 0,
+  customer: r.customer || {}, courier: r.courier || '', trackingNo: r.tracking_no || '',
+  history: r.history || [], updated: r.updated_at,
+});
+const toProduct = r => ({
     id: r.id, name: r.name, cat: r.cat, price: Number(r.price) || 0,
     was: r.was === null || r.was === undefined ? null : Number(r.was),
     badge: r.badge || '', note: r.note || '', rating: Number(r.rating) || 5,
@@ -124,13 +133,7 @@ const supa = (() => {
       ]);
       return {
         products: (products || []).map(toProduct),
-        orders: (orders || []).map(r => ({
-          ref: r.ref, createdAt: r.created_at, status: r.status, channel: r.channel,
-          items: r.items || [], subtotal: Number(r.subtotal) || 0,
-          delivery: Number(r.delivery) || 0, total: Number(r.total) || 0,
-          customer: r.customer || {}, courier: r.courier || '', trackingNo: r.tracking_no || '',
-          history: r.history || [], updated: r.updated_at,
-        })),
+        orders: (orders || []).map(toOrder),
         settings: settingsRows && settingsRows[0] ? settingsRows[0].data || {} : {},
         admins: Object.fromEntries((admins || []).map(a => [a.username, {
           salt: a.salt, hash: a.hash, created: a.created, updated: a.updated,
@@ -179,18 +182,19 @@ const supa = (() => {
           tracking_no: o.trackingNo || '', history: o.history || [],
         }],
       });
-      return rows && rows[0];
+      return rows && rows[0] ? toOrder(rows[0]) : null;
     },
     async patchOrder(ref, fields) {
       const map = { status: 'status', courier: 'courier', trackingNo: 'tracking_no',
-                    delivery: 'delivery', total: 'total', history: 'history' };
+                    delivery: 'delivery', total: 'total', history: 'history',
+                    customer: 'customer' };
       const body = {};
       for (const [k, v] of Object.entries(fields)) if (map[k]) body[map[k]] = v;
       body.updated_at = new Date().toISOString();
       const rows = await req('orders?ref=eq.' + q(ref), {
         method: 'PATCH', body, prefer: 'return=representation',
       });
-      return rows && rows[0];
+      return rows && rows[0] ? toOrder(rows[0]) : null;
     },
     async removeOrder(ref) {
       await req('orders?ref=eq.' + q(ref), { method: 'DELETE' });
