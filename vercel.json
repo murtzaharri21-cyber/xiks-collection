@@ -4,22 +4,45 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/admin/", "destination": "/admin.html" },
-    { "source": "/track", "destination": "/track.html" },
-    { "source": "/track/", "destination": "/track.html" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/admin/",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/track",
+      "destination": "/track.html"
+    },
+    {
+      "source": "/track/",
+      "destination": "/track.html"
+    }
   ],
   "headers": [
     {
       "source": "/(.*).html",
-      "headers": [{ "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
+      ]
     },
     {
       "source": "/api/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
     }
-  ],
-  "functions": {
-    "api/*.js": { "memory": 512 }
-  }
+  ]
 }
