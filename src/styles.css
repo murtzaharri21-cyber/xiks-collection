@@ -698,3 +698,72 @@ footer{padding:64px var(--gut) 40px;border-top:1px solid var(--line);margin-top:
   .stage{height:clamp(340px,48vh,460px);max-width:min(520px,86vw)}
   .price-chip{right:4px;top:6px;font-size:18px;padding:9px 16px}
 }
+
+/* ---------- phone layout ---------- */
+@media (max-width:700px){
+  :root{--gut:18px}
+  header{gap:12px;padding:12px var(--gut)}
+  header.scrolled{padding:9px var(--gut)}
+  .brand{gap:8px}
+  .brand .mark{font-size:19px}
+  .brand .tag{font-size:8px;letter-spacing:.16em;padding-left:8px}
+  .hd-actions{gap:8px}
+  .hd-actions .icon-btn{width:38px;height:38px}
+  .burger{display:grid}
+  nav.main{display:none}
+  #hero{padding:76px 0 38px}
+  .hero-banner{height:auto;min-height:0;aspect-ratio:1/1}
+  .hero-copy{padding:30px var(--gut) 0}
+  .hero-copy .h1{font-size:clamp(38px,11vw,56px);line-height:1}
+  .hero-copy .lede{font-size:14px;line-height:1.7}
+  .hero-cta{display:grid;grid-template-columns:1fr;gap:10px}
+  .hero-cta .btn{width:100%;justify-content:center;padding:14px 18px;font-size:10px}
+  .hero-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:22px}
+  .hero-meta>div{min-width:0}
+  .hero-meta small{font-size:9px;letter-spacing:.08em}
+  .pad{padding-top:64px;padding-bottom:64px}
+  .wrap{width:min(var(--maxw),calc(100% - 2 * var(--gut)))}
+  .col-head{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:22px}
+  .col-head .lede{max-width:none!important;font-size:14px}
+  .sec-title{font-size:clamp(32px,9vw,44px)}
+  .filters{gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .filters button{flex:0 0 auto}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .p-card{min-width:0}
+  .p-media{aspect-ratio:auto;display:flex;flex-direction:column;overflow:visible;background:transparent;box-shadow:none}
+  .p-media img{height:auto;aspect-ratio:4/5;transform:none;border-radius:var(--r);box-shadow:var(--shadow-s)}
+  .p-media::after{display:none}
+  .p-body{padding:12px 10px 0}
+  .p-name{font-size:15px}
+  .p-foot{align-items:flex-start;gap:6px;flex-wrap:wrap}
+  .p-price{font-size:16px}
+  .p-price s{display:block;margin:0 0 2px}
+  .p-actions{gap:6px}
+  .p-actions .mini{padding:9px 8px;font-size:9px;letter-spacing:.08em}
+  .ring-wrap{height:min(92vw,390px);min-height:300px;perspective:850px}
+  .ring-item{width:min(56vw,220px)}
+  .ring-nav{gap:14px}
+  .ring-hint{max-width:58vw;text-align:center;font-size:10px;letter-spacing:.1em}
+  .story-grid,.visit-grid{grid-template-columns:1fr;gap:28px}
+  .story-grid>*,.visit-grid>*{min-width:0}
+  .map-card{width:100%;max-width:100%}
+  .ig-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .foot-grid{grid-template-columns:1fr;gap:26px}
+  .foot-bot{display:grid;gap:10px}
+  .co-modal{width:min(calc(100% - 24px),620px);max-height:calc(100dvh - 24px);overflow-y:auto}
+  .co-form{padding:22px 18px}
+  .co-actions .btn{flex:1 1 100%;justify-content:center}
+  .modal{padding:12px}
+  .modal{width:100%;max-height:calc(100dvh - 24px);overflow-y:auto}
+  #visit{padding-bottom:80px}
+}
+@media (max-width:380px){
+  :root{--gut:14px}
+  .brand .tag{display:none}
+  .grid{gap:9px}
+  .p-body{padding:10px 8px 0}
+  .p-name{font-size:14px}
+  .hero-meta{gap:6px}
+  .hero-meta small{font-size:8px}
+}
