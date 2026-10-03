@@ -4,6 +4,7 @@
     { "source": "/track/", "destination": "/track", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/[...path]" },
     { "source": "/admin", "destination": "/deploy/admin.html" },
     { "source": "/track", "destination": "/deploy/track.html" },
     { "source": "/", "destination": "/deploy/index.html" },
