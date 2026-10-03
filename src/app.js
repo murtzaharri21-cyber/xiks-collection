@@ -320,15 +320,43 @@
     filterBar.innerHTML = ['All', ...cats]
       .map((c, i) => `<button class="chip${i === 0 ? ' on' : ''}" data-f="${c}">${c}</button>`).join('');
   }
-  filterBar.addEventListener('click', e => {
-    const b = e.target.closest('[data-f]'); if (!b) return;
-    $$('.chip', filterBar).forEach(c => c.classList.toggle('on', c === b));
-    const f = b.dataset.f;
+
+  /* ---------- popular categories: one circle per category ----------
+     The circles are drawn from the catalogue itself, so a category an owner adds in
+     the admin panel appears here on its own, wearing the photo of its first piece.
+     Tapping one filters the collection exactly like the chips do. */
+  const catRow = $('#catRow');
+  function buildCategories() {
+    if (!catRow) return;
+    const seen = new Map();
+    CATALOG.forEach(p => { if (p.cat && !seen.has(p.cat)) seen.set(p.cat, p); });
+    catRow.innerHTML = [...seen.entries()].slice(0, 8).map(([cat, first]) => `
+      <button class="cat" data-cat="${cat}" role="listitem" aria-label="Show ${cat}">
+        <span class="cat-pic"><img src="${imgSrc(first)}" alt="${cat}" loading="lazy" decoding="async"></span>
+        <span class="cat-label">${cat}</span>
+      </button>`).join('');
+  }
+  catRow?.addEventListener('click', e => {
+    const b = e.target.closest('[data-cat]'); if (!b) return;
+    applyFilter(b.dataset.cat, true);
+  });
+
+  /* the one place that decides what the grid shows — chips, circles and the
+     "shop the winter drop" button all come through here */
+  function applyFilter(f, scroll) {
+    $$('.chip', filterBar).forEach(c => c.classList.toggle('on', c.dataset.f === f));
     $$('.p-card').forEach((card, i) => {
       const show = f === 'All' || card.dataset.cat === f;
       card.classList.toggle('hide', !show);
       if (show) { card.style.animation = 'none'; void card.offsetWidth; card.style.animation = `cardIn .7s var(--ease-out) ${i * 45}ms backwards`; }
     });
+    if (!scroll) return;
+    const target = $('#collection');
+    if (target) target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  }
+  filterBar.addEventListener('click', e => {
+    const b = e.target.closest('[data-f]'); if (!b) return;
+    applyFilter(b.dataset.f, false);
   });
 
   grid.addEventListener('click', e => {
@@ -680,6 +708,7 @@
     configureSocialLinks();
     renderGrid();
     buildFilters();
+    buildCategories();
     if (SETTINGS.deliveryNote) { const d = $('#deliveryLine'); if (d) d.textContent = SETTINGS.deliveryNote; }
     /* live lookbook images follow the catalogue */
     const byId = id => CATALOG.find(p => p.id === id);

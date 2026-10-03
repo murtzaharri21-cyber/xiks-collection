@@ -46,6 +46,29 @@ with sync_playwright() as p:
     page.wait_for_selector('.p-card', timeout=15000)
     cards = page.locator('.p-card').count()
     check('product cards render', cards >= 6, f'{cards} cards')
+
+    # ---- popular categories: a circle per category, from the live catalogue ----
+    page.wait_for_selector('#catRow .cat', timeout=8000)
+    circles = page.locator('#catRow .cat').count()
+    cats_in_catalogue = len(set(page.eval_on_selector_all('.p-card', 'els => els.map(e => e.dataset.cat)')))
+    check('a circle for every category', circles == cats_in_catalogue, f'{circles} circles / {cats_in_catalogue} categories')
+    labels = [page.locator('#catRow .cat-label').nth(i).inner_text().strip() for i in range(circles)]
+    check('each circle is labelled with its category', all(labels), labels)
+    check('no image is broken in the circles', page.evaluate(
+        "() => [...document.querySelectorAll('#catRow .cat-pic img')].every(i => i.naturalWidth > 0)"))
+    check('the circles sit in a circle', page.evaluate(
+        "() => getComputedStyle(document.querySelector('#catRow .cat-pic')).borderRadius.startsWith('50%')"))
+    # tapping one filters the collection, exactly like the chips
+    page.locator('#catRow .cat').first.click()
+    page.wait_for_timeout(1600)
+    first_cat = labels[0]
+    visible = page.eval_on_selector_all('.p-card:not(.hide)', 'els => els.map(e => e.dataset.cat)')
+    check('tapping a circle filters the collection',
+          bool(visible) and {c.lower() for c in visible} == {first_cat.lower()}, sorted(set(visible)))
+    check('and it highlights the matching chip', page.locator('#filters .chip.on').inner_text().strip().lower() == first_cat.lower())
+    page.click('#filters .chip:has-text("All")')
+    page.wait_for_timeout(700)
+    check('the All chip brings every piece back', page.locator('.p-card:not(.hide)').count() == cards)
     check('no console errors on load', not errors, errors[:2])
 
     page.evaluate("window.scrollTo(0, document.body.scrollHeight * 0.45)")
