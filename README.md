@@ -177,13 +177,13 @@ cookies or session storage the session simply persists; where both are blocked (
 preview panes) the panel puts the signed session into its own address — `…/admin?tok=…` —
 so reloads, the storefront's Admin card and back/forward all stay signed in.
 
-Under **Settings → Database** there is a **Direct sign-in link**: copy it to your phone's
-home screen and opening it goes straight into the panel for 7 days, no password. Treat it
-like a key — anyone with that link is signed in.
-
 `test/direct-open.py`, `test/preview-sandbox.py` and `test/locked-down-preview.py` re-check
-all of these worst cases any time; if something ever fails, the sign-in card's **Run a
-check** prints exactly which request failed and why.
+all of these worst cases any time.
+
+The panel deliberately shows nothing about its own plumbing: no database name, no
+"local JSON files" notes and no troubleshooting buttons. It is a shop, not a server
+console — if something is wrong, the sign-in card or the products banner says so in
+plain words, and nothing appears at all when everything is working.
 
 ## Tracking orders — two sides
 
@@ -192,7 +192,8 @@ check** prints exactly which request failed and why.
 the totals, the courier + tracking number and a full timeline. Phone number is optional —
 if they add it, the last 4 digits must match.
 
-**You** open `/admin` → **Orders**: search by ref / name / phone / city / product,
+**You** open `/admin` — the **Dashboard** lists every order (newest first, click to open),
+and **Orders** adds search by ref / name / phone / city / product,
 filter by status and date, open any order to see the address, the items and the customer's
 note, then set the status, courier and tracking number. Every change is stamped on the
 order's timeline — which the customer sees instantly on the tracking page.
@@ -331,11 +332,15 @@ SESSION_SECRET=test-secret PORT=8090 node test/vercel-sim.js &
 ADMIN_USER=xiks ADMIN_PW="$PW" node test/vercel-e2e.js   # PW = your admin password
 ```
 
-## Backups
+## Where the data lives, and exports
 
-* **Local mode** — copy the `data/` folder. That is the whole database.
-* **Supabase** — Dashboard → Table Editor (or Database → Backups on paid plans). The
-  **Export CSV** button in the admin panel gives you orders for Excel either way.
+Every product, order, setting and login is a row in **Supabase** — nothing is kept on the
+server, so nothing is lost when Vercel restarts or redeploys. The admin panel's
+**Settings → Export** panel gives you `Orders → CSV` and `Products → JSON` at any time,
+and Supabase's own dashboard (Table Editor) can back the tables up too.
+
+`test/supabase-persistence.js` proves this end to end: it makes a change through the panel,
+then reads the Supabase tables **directly** to confirm the new value is really stored.
 
 Nothing is sent anywhere else — the site has no third-party trackers, and the browser never
 talks to Supabase directly (only the server does, with the service-role key).

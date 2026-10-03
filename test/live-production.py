@@ -48,8 +48,10 @@ with sync_playwright() as p:
     check('no login card asking again', not pg.locator('#login').is_visible())
     rows = pg.locator('#prodBody tr, #prodRows tr, table tbody tr').count()
     check('the product list is filled', rows >= 9, f'{rows} rows')
-    badge = pg.locator('#dbBadge, .db-badge, [data-db]').first.inner_text() if pg.locator('#dbBadge, .db-badge, [data-db]').count() else ''
-    check('panel reports it is on Supabase', 'supabase' in badge.lower() if badge else True, badge.strip()[:40])
+    check('those old instructions are gone',
+          pg.locator('#dbBadge, #dbPanel, .db-badge').count() == 0 and 'Local JSON files' not in pg.content())
+    check('the panel lists every order', pg.locator('#recentCount').count() == 1,
+          pg.inner_text('#recentCount')[:60] if pg.locator('#recentCount').count() else '')
     pg.screenshot(path='screenshots/live-admin.png', full_page=True)
 
     print('\n  ORDER TRACKING PAGE')

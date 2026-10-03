@@ -212,6 +212,10 @@ tr.clickable:hover{background:rgba(232,201,195,.18)}
   th:nth-child(2),td:nth-child(2){display:none}
 }
 @media print{#app>aside,.top,.row,.foot,.x{display:none}}
+/* long order lists scroll instead of pushing the page down */
+  .orderscroll{max-height:min(62vh,620px);overflow:auto;border-radius:12px}
+  .orderscroll table{margin-top:0}
+  .orderscroll thead th{position:sticky;top:0;background:#fff;z-index:1}
 </style>
 </head>
 <body>
@@ -235,21 +239,8 @@ tr.clickable:hover{background:rgba(232,201,195,.18)}
       <span>Keep me signed in on this device <small>(30 days — no password)</small></span></label>
     <button class="btn wide" type="button" id="loginGo">Sign in</button>
     <div class="msg" id="loginMsg"></div>
-    <div class="login-help">
-      <button type="button" class="linkish" id="showPw">Show password</button>
-      <span>·</span>
-      <button type="button" class="linkish" id="freshCopy">Load a fresh copy</button>
-      <span>·</span>
-      <button type="button" class="linkish" id="loginCheck">Run a check</button>
-    </div>
-    <pre id="loginDiag" class="diag hide"></pre>
-    <div id="connState" style="text-align:center;font-size:11.5px;margin-top:14px;color:var(--taupe-deep)">
-      Checking the store server&hellip;
-    </div>
-    <p style="text-align:center;font-size:12px;color:var(--taupe-deep);margin-top:10px">
-      Forgot it? Run <code>node reset-password.js</code> on the server, or read
-      <code>data/ADMIN-LOGIN.txt</code>.
-    </p>
+    <!-- only ever shows something when the panel cannot reach the server -->
+    <div id="connState" class="hide" style="text-align:center;font-size:12px;margin-top:14px;color:var(--bad)"></div>
   </form>
 </section>
 
@@ -263,7 +254,6 @@ tr.clickable:hover{background:rgba(232,201,195,.18)}
   <aside>
     <div class="brand">XIKS</div>
     <div class="who" id="whoami">admin</div>
-    <div class="db-badge" id="dbBadge" title="Where your products and orders are stored">database: …</div>
     <nav class="nav">
       <button data-tab="dash" class="on">Dashboard</button>
       <button data-tab="orders">Orders <span class="pill" id="pillPending">0</span></button>
@@ -289,8 +279,9 @@ tr.clickable:hover{background:rgba(232,201,195,.18)}
       </div>
       <div class="stats" id="stats"></div>
       <div class="panel">
-        <h3>Latest orders</h3>
-        <div id="recent"></div>
+        <h3>Orders</h3>
+        <p id="recentCount" style="color:var(--ink-soft);font-size:13px;margin:2px 0 10px"></p>
+        <div id="recent" class="orderscroll"></div>
       </div>
     </section>
 
@@ -318,7 +309,8 @@ tr.clickable:hover{background:rgba(232,201,195,.18)}
           <input type="date" id="oto" title="To date">
           <button class="btn sm ghost" id="oclear">Clear</button>
         </div>
-        <div id="ordersWrap" style="margin-top:16px"></div>
+        <p id="ordersCount" style="color:var(--ink-soft);font-size:13px;margin-top:14px"></p>
+        <div id="ordersWrap" class="orderscroll"></div>
       </div>
     </section>
 
@@ -367,39 +359,9 @@ tr.clickable:hover{background:rgba(232,201,195,.18)}
         <div class="row" style="margin-top:18px"><button class="btn" id="savePassword">Update password</button></div>
       </div>
 
-      <div class="panel" id="dbPanel">
-        <h3>Database</h3>
-        <p id="dbPanelText" style="color:var(--ink-soft);font-size:13.5px">Checking…</p>
-        <div class="direct hide" id="directRow">
-          <b>Direct sign-in link</b>
-          <p>Save this on your phone or laptop — opening it goes straight into the panel, no password, for 7 days.</p>
-          <div class="row"><input id="directLink" readonly style="flex:1;min-width:220px">
-            <button class="btn ghost sm" id="copyDirect">Copy</button></div>
-        </div>
-        <div class="row" style="margin-top:14px">
-          <button class="btn ghost sm" id="dbRefresh">Refresh</button>
-          <a class="btn ghost sm" href="https://supabase.com/dashboard" target="_blank" rel="noopener">Open Supabase</a>
-        </div>
-        <details style="margin-top:16px">
-          <summary style="cursor:pointer;font-size:13px;color:var(--taupe-deep)">Switch to Supabase (3 steps)</summary>
-          <ol style="font-size:13.5px;color:var(--ink-soft);line-height:1.7;padding-left:20px;margin-top:10px">
-            <li>Create a project at <b>supabase.com</b> (free tier is plenty).</li>
-            <li>Supabase → SQL Editor → paste <code>supabase/schema.sql</code> → Run.</li>
-            <li>Project Settings → API → copy the <b>Project URL</b> and the <b>service_role</b> key,
-                then start the server with them:
-                <pre style="white-space:pre-wrap;background:rgba(43,36,31,.06);padding:10px;border-radius:8px;font-size:12px;margin-top:8px">SUPABASE_URL=https://xxxx.supabase.co \
-SUPABASE_SERVICE_KEY=eyJhbGciOi... \
-node server.js</pre>
-                and run <code>node migrate-to-supabase.js</code> once to copy your current data across.</li>
-          </ol>
-        </details>
-      </div>
-
       <div class="panel">
-        <h3>Backups</h3>
-        <p style="color:var(--ink-soft);font-size:13.5px">Every order and product lives in <code>data/*.json</code> on the server.
-        Download a copy before big changes.</p>
-        <div class="row" style="margin-top:14px">
+        <h3>Export</h3>
+        <div class="row" style="margin-top:6px">
           <a class="btn ghost sm" href="/api/admin/orders.csv">Orders → CSV</a>
           <a class="btn ghost sm" href="/api/admin/products" target="_blank">Products → JSON</a>
         </div>
@@ -564,7 +526,11 @@ async function api(path, opts = {}) {
    the console), so the BODY decides — never the status code alone. */
 (async () => {
   const el = $('#connState');
-  const set = (html, colour) => { el.innerHTML = html; el.style.color = colour; };
+  const set = (html, colour) => {
+    if (!el) return;
+    if (!html) { el.innerHTML = ''; el.classList.add('hide'); return; }
+    el.classList.remove('hide'); el.innerHTML = html; el.style.color = colour;
+  };
   let r;
   try {
     r = await fetch('api/admin/session', {
@@ -574,12 +540,12 @@ async function api(path, opts = {}) {
     const s = r.ok ? await r.json().catch(() => null) : null;
     if (s && s.open) showOpenBar(true);
     if (s && s.user) {                       // session on this device (cookie, storage or link)
-      set('&#9679; Connected &mdash; signing you in&hellip;', 'var(--ok)');
+      set('');
       if (!TOKEN && s.token) setToken(s.token);
       refreshExtLinks();
       return enter(s.user);
     }
-    set('&#9679; Connected to the store server &mdash; sign in below', 'var(--ok)');
+    set('');                                  /* all good — nothing to say */
     clearUrlToken();                         /* any ?tok= here was stale — drop it */
     setToken('');
   } catch {
@@ -626,7 +592,6 @@ async function doLogin() {
         '(usually <b>http://localhost:8080/admin</b>). A plain file or preview copy cannot sign in.</span>'
       : esc(err.message) + (err.status && err.status !== 401 ? '<br><span style="font-size:12px">The server answered HTTP ' + err.status + '.</span>' : '');
     $('#p').value = '';
-    if (offline && window.runLoginCheck) window.runLoginCheck();   /* show what this page can and cannot reach */
   }
 }
 /* A preview pane may sandbox the page so that form submits are blocked
@@ -644,41 +609,6 @@ function updateLoginBtn() {
 });
 updateLoginBtn();
 $('#loginGo').addEventListener('click', doLogin);
-document.addEventListener('click', e => {
-  if (!e.target.closest('#showPw')) return;
-  const f = $('#p'), btn = $('#showPw');
-  const shown = f.type === 'text';
-  f.type = shown ? 'password' : 'text';
-  btn.textContent = shown ? 'Show password' : 'Hide password';
-  f.focus();
-});
-document.addEventListener('click', e => {
-  if (!e.target.closest('#freshCopy')) return;
-  location.replace(location.pathname + '?fresh=' + Date.now());
-});
-function runLoginCheck() {
-  const out = $('#loginDiag');
-  if (!out) return;
-  out.classList.remove('hide');
-  out.textContent = 'Checking…';
-  const lines = [`page        : ${location.origin}${location.pathname}`,
-                 `admin build : ${BUILD}`,
-                 `served from : ${location.protocol}//${location.host}`];
-  const ask = (label, path, opts) => fetch(path, Object.assign({ credentials: 'same-origin' }, opts))
-    .then(async r => { const t = await r.text(); lines.push(`${label.padEnd(11)}: HTTP ${r.status}  ${t.slice(0, 90)}`); })
-    .catch(err => lines.push(`${label.padEnd(11)}: no answer — ${err.message}`));
-  (async () => {
-    await ask('session', 'api/admin/session', { headers: { Accept: 'application/json' } });
-    await ask('catalogue', 'api/products', { headers: { Accept: 'application/json' } });
-    const t = TOKEN ? 'yes' : 'no (cookies alone are enough on a normal host)';
-    lines.push(`token saved : ${t}`);
-    lines.push('', 'Wrong password shows "Wrong username or password".');
-    lines.push('A build older than r5 on screen means a cached copy — use "Load a fresh copy".');
-    out.textContent = lines.join('\n');
-  })();
-}
-window.runLoginCheck = runLoginCheck;
-document.addEventListener('click', e => { if (e.target.closest('#loginCheck')) runLoginCheck(); });
 $('#loginForm').addEventListener('submit', e => { e.preventDefault(); doLogin(); });
 $('#p').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doLogin(); } });
 $('#u').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doLogin(); } });
@@ -711,21 +641,6 @@ function showOpenBar(on) {
   if (on) out.disabled = true; else out.disabled = false;
 }
 
-/* Show the owner a link that opens the panel directly (only once signed in). */
-function paintDirectLink() {
-  const row = $('#directRow'); if (!row) return;
-  if (!TOKEN) return row.classList.add('hide');
-  row.classList.remove('hide');
-  const url = location.origin + location.pathname + '?tok=' + encodeURIComponent(TOKEN);
-  $('#directLink').value = url;
-}
-document.addEventListener('click', e => {
-  if (!e.target.closest('#copyDirect')) return;
-  const v = $('#directLink').value;
-  const done = () => toast('Link copied — save it somewhere safe');
-  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(v).then(done, () => { $('#directLink').select(); done(); });
-  else { $('#directLink').select(); document.execCommand?.('copy'); done(); }
-});
 function refreshExtLinks() {
   document.querySelectorAll('a[data-ext]').forEach(a => {
     const base = a.dataset.base || a.getAttribute('href');
@@ -762,8 +677,11 @@ async function loadDashboard() {
       <div class="stat"><b>${money(s.revenue)}</b><small>Revenue (excl. cancelled)</small></div>
       <div class="stat"><b>${s.shipped}</b><small>In transit</small></div>
       <div class="stat"><b>${s.products}</b><small>Live products</small></div>`;
-    if (s.database) { const b = $('#dbBadge'); if (b) b.textContent = 'database: ' + s.database; }
-    $('#recent').innerHTML = s.recent.length ? table(s.recent, true) : '<p class="empty">No orders yet — share your store link.</p>';
+    const all = s.recent || [];
+    $('#recent').innerHTML = all.length ? table(all, true) : '<p class="empty">No orders yet — share your store link.</p>';
+    $('#recentCount').textContent = all.length
+      ? `All ${all.length} order${all.length === 1 ? '' : 's'}, newest first — click one to open it, or use the Orders tab to search.`
+      : '';
   } catch (e) { toast(e.message, true); }
 }
 $('#refreshDash').addEventListener('click', loadDashboard);
@@ -793,6 +711,10 @@ async function loadOrders() {
   const qs = new URLSearchParams({ status: st, q, from, to });
   try {
     const { orders } = await api('/api/admin/orders?' + qs);
+    const filtered = q || (st && st !== 'all') || from || to;
+    $('#ordersCount').textContent = orders.length
+      ? (filtered ? `Showing ${orders.length} matching order${orders.length === 1 ? '' : 's'}.` : `All ${orders.length} order${orders.length === 1 ? '' : 's'} — nothing is hidden.`)
+      : (filtered ? 'No orders match this filter.' : 'No orders yet.');
     $('#ordersWrap').innerHTML = orders.length ? `<table><thead><tr>
       <th>Ref</th><th>Placed</th><th>Customer</th><th>City</th><th>Items</th><th>Total</th><th>Status</th><th></th>
       </tr></thead><tbody>${orders.map(o => `
@@ -901,7 +823,7 @@ function sessionLost(msg) {
   $('#login').style.display = '';
   $('#loginMsg').textContent = msg || 'Your session expired — please sign in again.';
   const el = $('#connState');
-  if (el) { el.innerHTML = '&#9679; Connected to the store server &mdash; sign in below'; el.style.color = 'var(--ok)'; }
+  if (el) { el.innerHTML = ''; el.classList.add('hide'); }
 }
 const isAuthError = e => e && (e.status === 401 || e.status === 403);
 const bannerCopy = e => {
@@ -921,8 +843,6 @@ async function loadProducts() {
   try {
     const r = await api('/api/admin/products');
     products = r.products;
-    if (r.database) { const b = $('#dbBadge'); if (b) b.textContent = 'database: ' + r.database; }
-    paintDirectLink();
     warn.classList.add('hide');
     const cats = [...new Set(products.map(p => p.cat))];
     $('#catList').innerHTML = cats.map(c => `<option value="${esc(c)}">`).join('');
@@ -1100,21 +1020,13 @@ $('#productForm').addEventListener('submit', e => { e.preventDefault(); saveProd
 /* ============================================================ settings */
 async function loadSettings() {
   try {
-    const { settings: s, database } = await api('/api/admin/settings');
-    const t = $('#dbPanelText');
-    if (t) {
-      const supa = /supabase/i.test(database || '');
-      t.innerHTML = supa
-        ? '<b>Supabase</b> — ' + esc(database) + '<br>Your products and orders live in your Supabase project, so they survive restarts and redeploys. Manage them in the Supabase dashboard, or just keep using this panel.'
-        : '<b>Local JSON files</b> — data/*.json on this server.<br>Works fine, but on hosts that reset the filesystem (free tiers, containers) your data can be wiped on redeploy. Switch to Supabase below to make it permanent.';
-    }
+    const { settings: s } = await api('/api/admin/settings');
     for (const k of ['storeName','instagram','whatsapp','facebook','address','deliveryNote','freeOver','categories']) {
       const el = $('#s_' + k); if (!el) continue;
       el.value = Array.isArray(s[k]) ? s[k].join(', ') : (s[k] ?? '');
     }
   } catch (e) { toast(e.message, true); }
 }
-document.addEventListener('click', e => { if (e.target.closest('#dbRefresh')) loadSettings(); });
 $('#saveSettings').addEventListener('click', async () => {
   const payload = {};
   for (const k of ['storeName','instagram','whatsapp','facebook','address','deliveryNote']) payload[k] = $('#s_' + k).value.trim();

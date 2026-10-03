@@ -4,7 +4,7 @@ test/browser-sweep.py — drives the real site in a browser.
 
   1. storefront: scroll the 3D page, add to bag, checkout, read the order ref
   2. tracking page: look that ref up
-  3. admin: sign in, products list, edit, add, delete, database badge
+  3. admin: sign in, products list, edit, add, delete, orders list
   4. offline behaviour: the products tab must explain itself, not look empty
 
 Usage:  BASE=http://localhost:8080 python3 test/browser-sweep.py
@@ -110,7 +110,9 @@ with sync_playwright() as p:
     page.wait_for_selector('#productsWrap tbody tr', timeout=15000)
     rows = page.locator('#productsWrap tbody tr').count()
     check('products tab lists the catalogue', rows == 9, f'{rows} rows')
-    check('database badge is shown', 'database:' in page.inner_text('#dbBadge').lower(), page.inner_text('#dbBadge'))
+    # the database badge was removed from the panel on purpose (the shop owner
+    # does not need it) — instead the dashboard must list the orders
+    check('dashboard lists orders', page.locator('#recentCount').count() == 1)
     check('connection banner hidden while online', page.locator('#productsOffline').is_hidden())
     check('every row has Edit / Photo / ✕', page.evaluate(
         "() => Array.from(document.querySelectorAll('#productsWrap tbody tr'))"

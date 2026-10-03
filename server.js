@@ -454,7 +454,9 @@ async function handleRequest(req, res) {
           revenue,
           products: (await db.products()).filter(x => x.active !== false).length,
           database: db.label,
-          recent: orders.slice(0, 6).map(o => ({ ref: o.ref, createdAt: o.createdAt, status: o.status,
+          /* the whole list, newest first — the dashboard shows every order,
+             and the Orders tab adds search, filters and CSV export on top */
+          recent: orders.map(o => ({ ref: o.ref, createdAt: o.createdAt, status: o.status,
                          total: o.total, name: o.customer.name, city: o.customer.city })),
         });
       }
