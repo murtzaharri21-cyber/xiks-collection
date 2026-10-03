@@ -328,9 +328,10 @@ nav.main a:hover::after{width:100%}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:clamp(18px,2.4vw,34px);margin-top:52px;perspective:1600px}
 .p-card{
-  position:relative;transform-style:preserve-3d;transition:transform .5s var(--ease),opacity .5s var(--ease);
+  position:relative;cursor:pointer;transform-style:preserve-3d;transition:transform .5s var(--ease),opacity .5s var(--ease);
   animation:cardIn .8s var(--ease-out) backwards;
 }
+.p-card:focus-visible{outline:2px solid var(--taupe-deep);outline-offset:5px;border-radius:var(--r)}
 @keyframes cardIn{from{opacity:0;transform:translateY(40px) rotateX(-14deg)}}
 .p-card.hide{display:none}
 .p-media{

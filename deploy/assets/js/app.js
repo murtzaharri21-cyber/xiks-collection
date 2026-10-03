@@ -293,7 +293,7 @@
 
   function cardHTML(p, ix) {
     return `
-      <article class="p-card" data-cat="${p.cat}" style="animation-delay:${(ix % 8) * 60}ms">
+      <article class="p-card" data-cat="${p.cat}" data-product="${p.id}" tabindex="0" role="group" aria-label="View details for ${p.name}" style="animation-delay:${(ix % 8) * 60}ms">
         <div class="p-media tilt">
           ${p.badge ? `<span class="p-badge ${p.was ? 'sale' : ''}">${p.badge}</span>` : ''}
           <img src="${imgSrc(p)}" alt="${p.name}" loading="lazy" decoding="async">
@@ -334,8 +334,17 @@
   grid.addEventListener('click', e => {
     const a = e.target.closest('[data-add]');
     const v = e.target.closest('[data-view]');
-    if (a) addToCart(a.dataset.add, null);
-    if (v) openModal(v.dataset.view);
+    if (a) { addToCart(a.dataset.add, null); return; }
+    if (v) { openModal(v.dataset.view); return; }
+    if (e.target.closest('button, a, input, select, textarea')) return;
+    const card = e.target.closest('.p-card');
+    if (card) openModal(card.dataset.product);
+  });
+  grid.addEventListener('keydown', e => {
+    const card = e.target.closest('.p-card');
+    if (!card || e.target !== card || (e.key !== 'Enter' && e.key !== ' ')) return;
+    e.preventDefault();
+    openModal(card.dataset.product);
   });
 
   /* ---------------- quick view modal ---------------- */
