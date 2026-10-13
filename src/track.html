@@ -137,6 +137,7 @@ $('#ref').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventD
 function render(o) {
   const idx = ORDER.indexOf(o.status);
   const cancelled = o.status === 'cancelled';
+  const hasUnpricedItems = o.items.some(i => Number(i.price) <= 0);
   const bars = ORDER.map((s, i) => {
     if (cancelled) return `<div class="${i === 0 ? 'bad' : ''}"></div>`;
     return `<div class="${i <= idx ? 'on' : ''}"></div>`;
@@ -164,14 +165,14 @@ function render(o) {
         ${o.items.map(i => `<div class="item">
           <img src="${esc(i.image)}" alt="">
           <div><div class="t">${esc(i.name)}</div>
-          <div class="m">${esc(i.size ? 'Size ' + i.size + ' · ' : '')}${i.qty} × ${money(i.price)}</div></div>
-          <div class="amt">${money(i.line)}</div>
+          <div class="m">${esc(i.size ? 'Size ' + i.size + ' · ' : '')}${i.qty} × ${Number(i.price) > 0 ? money(i.price) : 'Confirm with shop'}</div></div>
+          <div class="amt">${Number(i.price) > 0 ? money(i.line) : 'Confirm'}</div>
         </div>`).join('')}
       </div>
 
-      <div class="totals"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
-      <div class="totals"><span>Delivery</span><span>${o.delivery ? money(o.delivery) : 'Free'}</span></div>
-      <div class="totals big"><span>Total</span><span>${money(o.total)}</span></div>
+      <div class="totals"><span>Subtotal</span><span>${hasUnpricedItems ? 'Confirm with shop' : money(o.subtotal)}</span></div>
+      <div class="totals"><span>Delivery</span><span>${hasUnpricedItems ? 'Confirm with shop' : (o.delivery ? money(o.delivery) : 'Free')}</span></div>
+      <div class="totals big"><span>Total</span><span>${hasUnpricedItems ? 'Confirm with shop' : money(o.total)}</span></div>
 
       <div class="kv">
         <b>Delivering to</b><span>${esc(o.customerName)}, ${esc(o.customerCity || '—')}</span>

@@ -84,15 +84,24 @@ const SECRET = (() => {
 const OPEN_ADMIN = ['1', 'true', 'yes'].includes(String(process.env.OPEN_ADMIN || '').toLowerCase());
 
 const DEFAULT_PRODUCTS = [
-  { id:'p1', name:'Xiks Track Pant — Black',    cat:'Track Pants', price:2800, was:null,  badge:'Bestseller', note:'Unisex fit, contrast side stripe — comfort meets street style', rating:4.9, colors:['#1B1B1B','#F2F2F2','#9AA0A6'], image:'assets/images/p1.webp', active:true, sort:1 },
-  { id:'p2', name:'GLNZ Track Set',             cat:'Tracksuits',  price:4900, was:null,  badge:'New',        note:'Full set — zip jacket + trouser, everyday street fit',        rating:4.8, colors:['#171717','#EDEDED','#8E8E8E'], image:'assets/images/p2.webp', active:true, sort:2 },
-  { id:'p3', name:'Track Pant — Three Colours', cat:'Track Pants', price:2800, was:null,  badge:'',           note:'Red, white or black — brushed inner, zip pockets',            rating:4.8, colors:['#C0392B','#F5F5F5','#1B1B1B'], image:'assets/images/p3.webp', active:true, sort:3 },
-  { id:'p4', name:'2-in-1 Jacket — Grey',       cat:'Jackets',     price:7500, was:null,  badge:'Winter Ready', note:'Two layers: waterproof shell + inner — wear together or alone', rating:4.9, colors:['#6B7280','#2F3B4C'], image:'assets/images/p4.webp', active:true, sort:4 },
-  { id:'p5', name:'2-Piece Jacket Set',         cat:'Sets',        price:8900, was:null,  badge:'',           note:'Jacket + trouser set, water-resistant, built for the outdoors', rating:4.9, colors:['#4B5563','#3B6EA5'], image:'assets/images/p5.webp', active:true, sort:5 },
-  { id:'p6', name:"Men's Winter Sweater",       cat:'Sweaters',    price:3600, was:null,  badge:'Bestseller', note:'Blue, black or grey — warm enough for a Hunza winter',         rating:4.9, colors:['#2E4A7D','#1B1B1B','#8D8D8D'], image:'assets/images/p6.webp', active:true, sort:6 },
-  { id:'p7', name:'Xiks 2-in-1 Jacket — Black', cat:'Jackets',     price:7500, was:null,  badge:'',           note:'Hooded shell, sleeve pocket, windproof — our flagship',       rating:5.0, colors:['#141414','#2F3B4C'], image:'assets/images/p7.webp', active:true, sort:7 },
-  { id:'p8', name:'Winter Jacket — 3 Colours',  cat:'Jackets',     price:6900, was:8200,  badge:'Sale',       note:'Black, cream or beige — padded, lightweight, everyday warm',  rating:4.8, colors:['#1B1B1B','#E8DFCB','#D9C7A0'], image:'assets/images/p8.webp', active:true, sort:8 },
-  { id:'p9', name:'Heavy 2-in-1 Jacket',        cat:'Jackets',     price:8200, was:null,  badge:'Winter Ready', note:'Two layers, fully waterproof — summer shell, winter coat',   rating:5.0, colors:['#1B1B1B','#232F45','#7A7A7A'], image:'assets/images/p9.webp', active:true, sort:9 },
+  { id:'p1', name:'Xiks Track Pant - Black', cat:'Track Pants', price:2800, was:null, badge:'', note:'Unisex fit with a contrast side stripe.', rating:4.9, colors:['#1B1B1B','#F2F2F2','#9AA0A6'], image:'assets/images/p1.webp', active:true, sort:1 },
+  { id:'p2', name:'GLNZ Track Set', cat:'Tracksuits', price:4900, was:null, badge:'New', note:'Full set with a zip jacket and trousers.', rating:4.8, colors:['#171717','#EDEDED','#8E8E8E'], image:'assets/images/p2.webp', active:true, sort:2 },
+  { id:'p3', name:'Track Pant - Three Colours', cat:'Track Pants', price:2800, was:null, badge:'', note:'Shown in red, white or black. Confirm colors and details before ordering.', rating:4.8, colors:['#C0392B','#F5F5F5','#1B1B1B'], image:'assets/images/p3.webp', active:true, sort:3 },
+  { id:'p4', name:'2-in-1 Jacket - Grey', cat:'Jackets', price:7500, was:null, badge:'Winter Ready', note:'Two-layer jacket. Confirm materials, features and available colors before ordering.', rating:4.9, colors:['#6B7280','#2F3B4C'], image:'assets/images/p4.webp', active:true, sort:4 },
+  { id:'p5', name:'2-Piece Jacket Set', cat:'Sets', price:8900, was:null, badge:'', note:'Jacket and trouser set. Confirm materials and available colors before ordering.', rating:4.9, colors:['#4B5563','#3B6EA5'], image:'assets/images/p5.webp', active:true, sort:5 },
+  { id:'p6', name:"Men's Winter Sweater", cat:'Sweaters', price:3600, was:null, badge:'', note:'Sweater shown in the catalog. Confirm available colors and sizes before ordering.', rating:4.9, colors:['#2E4A7D','#1B1B1B','#8D8D8D'], image:'assets/images/instagram-mens-winter-sweater-cover.webp', active:true, sort:6 },
+  { id:'p7', name:'Xiks 2-in-1 Jacket - Black', cat:'Jackets', price:7500, was:null, badge:'', note:'Two-in-one jacket shown in the catalog. Confirm materials, features and colors before ordering.', rating:5, colors:['#141414','#2F3B4C'], image:'assets/images/instagram-2in1-jacket-multicolor.webp', active:true, sort:7 },
+  { id:'p8', name:'Winter Jacket - 3 Colours', cat:'Jackets', price:6900, was:null, badge:'', note:'Shown in black, cream and beige. Confirm available colors, materials and features before ordering.', rating:4.8, colors:['#1B1B1B','#E8DFCB','#D9C7A0'], image:'assets/images/p8.webp', active:true, sort:8 },
+  { id:'p9', name:'Heavy 2-in-1 Jacket', cat:'Jackets', price:8200, was:null, badge:'Winter Ready', note:'Two-in-one jacket shown in the catalog. Confirm materials and features before ordering.', rating:5, colors:['#1B1B1B','#232F45','#7A7A7A'], image:'assets/images/p9.webp', active:true, sort:9 },
+  { id:'p10', name:"Ladies' Leather & Hooded Jackets", cat:"Women's Jackets", price:6000, was:null, badge:'New', note:"Ladies' leather and hooded jackets shown in the catalog. Message us to confirm style and size.", rating:0, colors:[], image:'assets/images/instagram-ladies-leather-jacket.webp', active:true, sort:10 },
+  { id:'p11', name:'Gen Z Leather Jacket', cat:"Women's Jackets", price:6000, was:null, badge:'New', note:'Leather jacket featured by Xiks Collection. Message us to confirm available sizes.', rating:0, colors:[], image:'assets/images/instagram-genz-leather-jacket.webp', active:true, sort:11 },
+  { id:'p12', name:'2-in-1 Winter Jacket & Trouser Set', cat:'Sets', price:5000, was:null, badge:'New', note:'Winter jacket with matching trousers. Message us to confirm current price, availability and delivery options.', rating:0, colors:[], image:'assets/images/instagram-winter-jacket-trouser-set.webp', active:true, sort:12 },
+  { id:'p13', name:"Elegant Ladies' Purse", cat:'Accessories', price:3000, was:null, badge:'New', note:"Ladies' purse featured by Xiks Collection. Message us to confirm availability.", rating:0, colors:[], image:'assets/images/instagram-ladies-purse.webp', active:true, sort:13 },
+  { id:'p14', name:'Traditional-Inspired Woven Backpack', cat:'Accessories', price:5000, was:null, badge:'New', note:'Woven backpack featured by Xiks Collection. Message us to confirm materials and availability.', rating:0, colors:[], image:'assets/images/instagram-woven-backpack.webp', active:true, sort:14 },
+  { id:'p15', name:"Ladies' Leather Jacket - Latest Style", cat:"Women's Jackets", price:6000, was:null, badge:'New', note:"Ladies' leather jacket featured on the Xiks Collection Instagram page. Message us to confirm available sizes.", rating:0, colors:[], image:'assets/images/instagram-ladies-leather-jacket-latest.webp', active:true, sort:15 },
+  { id:'p16', name:'Gen Z Winter Jacket & Baggy Jeans Look', cat:'Sets', price:5000, was:null, badge:'New', note:'Jacket-and-jeans look featured by Xiks Collection. Ask us which pieces and sizes are currently available.', rating:0, colors:[], image:'assets/images/instagram-genz-winter-drip.webp', active:true, sort:16 },
+  { id:'p17', name:"Ladies' 2-in-1 Winter Jacket", cat:"Women's Jackets", price:6000, was:null, badge:'New', note:"Women's two-in-one jacket featured by Xiks Collection. Message us to confirm materials, features, colors and sizes.", rating:0, colors:[], image:'assets/images/instagram-ladies-new-stock.webp', active:true, sort:17 },
+  { id:'p18', name:"Gen Z Women's Jacket", cat:"Women's Jackets", price:6000, was:null, badge:'New', note:"Women's jacket featured in the Xiks Collection Gen Z post. Message the shop to confirm available sizes.", rating:0, colors:[], image:'assets/images/instagram-genz-new-jacket.webp', active:true, sort:18 },
 ];
 
 const DEFAULT_SETTINGS = {
@@ -104,7 +113,7 @@ const DEFAULT_SETTINGS = {
   deliveryNote: 'Courier across Pakistan in 3–5 days · cash on delivery available',
   freeOver: 0,
   currency: 'PKR',
-  categories: ['Jackets', 'Track Pants', 'Tracksuits', 'Sweaters', 'Sets', 'Accessories'],
+  categories: ['Jackets', "Women's Jackets", 'Track Pants', 'Tracksuits', 'Sweaters', 'Sets', 'Accessories'],
   statuses: ['pending', 'confirmed', 'packed', 'shipped', 'delivered', 'cancelled'],
 };
 
@@ -120,11 +129,27 @@ function boot() {
 async function seedIfEmpty() {
   try {
     const products = await db.products();
-    if (products.length) return;
-    console.log('  seeding ' + db.name + ' with the starter catalogue…');
-    for (const p of DEFAULT_PRODUCTS) await db.createProduct({ ...p });
-    const s = await db.settings();
-    if (!s || !s.storeName) await db.saveSettings(DEFAULT_SETTINGS);
+    const settings = await db.settings();
+    if (!products.length) {
+      console.log('  seeding ' + db.name + ' with the starter catalogue…');
+      for (const p of DEFAULT_PRODUCTS) await db.createProduct({ ...p });
+    } else if (Number(settings.catalogSeedVersion || 0) < 2) {
+      const existingIds = new Set(products.map(p => p.id));
+      for (const p of DEFAULT_PRODUCTS.filter(item => Number(item.id.slice(1)) >= 10 && !existingIds.has(item.id))) {
+        await db.createProduct({ ...p });
+      }
+    }
+    if (Number(settings.catalogSeedVersion || 0) < 2 || !settings.storeName) {
+      await db.saveSettings({
+        ...DEFAULT_SETTINGS,
+        ...settings,
+        categories: [...new Set([
+          ...(Array.isArray(settings.categories) ? settings.categories : DEFAULT_SETTINGS.categories),
+          "Women's Jackets",
+        ])],
+        catalogSeedVersion: 2,
+      });
+    }
   } catch (err) {
     console.error('  ⚠ could not seed the catalogue:', err.message);
   }

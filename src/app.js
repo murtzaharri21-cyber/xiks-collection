@@ -12,29 +12,46 @@
 
   /* ---- boutique settings: edit these two lines when you have them ---- */
   const WHATSAPP = '923554822878';                       // Pakistan country code, no + or spaces
-  const FACEBOOK = '';                                   // e.g. 'https://www.facebook.com/your.page'
   const INSTAGRAM = 'https://www.instagram.com/xiks.collection';
 
   /* ---------------- catalog ---------------- */
   const CATALOG = [
-    { id:'p1', name:'Xiks Track Pant — Black',      cat:'Track Pants', price:2800, was:null,  badge:'Bestseller',
-      img:'p1', note:'Unisex fit, contrast side stripe — comfort meets street style', rating:4.9, colors:['#1B1B1B','#F2F2F2','#9AA0A6'] },
-    { id:'p2', name:'GLNZ Track Set',               cat:'Tracksuits',  price:4900, was:null,  badge:'New',
-      img:'p2', note:'Full set — zip jacket + trouser, everyday street fit', rating:4.8, colors:['#171717','#EDEDED','#8E8E8E'] },
+    { id:'p1', name:'Xiks Track Pant — Black',      cat:'Track Pants', price:2800, was:null,  badge:'',
+      img:'p1', note:'Unisex fit with a contrast side stripe.', colors:['#1B1B1B','#F2F2F2','#9AA0A6'] },
+    { id:'p2', name:'GLNZ Track Set',               cat:'Tracksuits',  price:4900, was:null,  badge:'',
+      img:'p2', note:'Full set with a zip jacket and trousers.', colors:['#171717','#EDEDED','#8E8E8E'] },
     { id:'p3', name:'Track Pant — Three Colours',   cat:'Track Pants', price:2800, was:null,  badge:'',
-      img:'p3', note:'Red, white or black — brushed inner, zip pockets', rating:4.8, colors:['#C0392B','#F5F5F5','#1B1B1B'] },
+      img:'p3', note:'Shown in red, white or black. Confirm colors and details before ordering.', colors:['#C0392B','#F5F5F5','#1B1B1B'] },
     { id:'p4', name:'2-in-1 Jacket — Grey',         cat:'Jackets',     price:7500, was:null,  badge:'Winter Ready',
-      img:'p4', note:'Two layers: waterproof shell + inner — wear together or alone', rating:4.9, colors:['#6B7280','#2F3B4C'] },
+      img:'p4', note:'Two-layer jacket. Confirm materials, features and available colors before ordering.', colors:['#6B7280','#2F3B4C'] },
     { id:'p5', name:'2-Piece Jacket Set',           cat:'Sets',        price:8900, was:null,  badge:'',
-      img:'p5', note:'Jacket + trouser set, water-resistant, built for the outdoors', rating:4.9, colors:['#4B5563','#3B6EA5'] },
-    { id:'p6', name:"Men's Winter Sweater",         cat:'Sweaters',    price:3600, was:null,  badge:'Bestseller',
-      img:'p6', note:'Blue, black or grey — warm enough for a Hunza winter', rating:4.9, colors:['#2E4A7D','#1B1B1B','#8D8D8D'] },
+      img:'p5', note:'Jacket and trouser set. Confirm materials and available colors before ordering.', colors:['#4B5563','#3B6EA5'] },
+    { id:'p6', name:"Men's Winter Sweater",         cat:'Sweaters',    price:3600, was:null,  badge:'',
+      img:'instagram-mens-winter-sweater-cover', note:'Sweater shown in the catalog. Confirm available colors and sizes before ordering.', colors:['#2E4A7D','#1B1B1B','#8D8D8D'] },
     { id:'p7', name:'Xiks 2-in-1 Jacket — Black',   cat:'Jackets',     price:7500, was:null,  badge:'',
-      img:'p7', note:'Hooded shell, sleeve pocket, windproof — our flagship', rating:5.0, colors:['#141414','#2F3B4C'] },
-    { id:'p8', name:'Winter Jacket — 3 Colours',    cat:'Jackets',     price:6900, was:8200,  badge:'Sale',
-      img:'p8', note:'Black, cream or beige — padded, lightweight, everyday warm', rating:4.8, colors:['#1B1B1B','#E8DFCB','#D9C7A0'] },
+      img:'instagram-2in1-jacket-multicolor', note:'Two-in-one jacket shown in the catalog. Confirm materials, features and colors before ordering.', colors:['#141414','#2F3B4C'] },
+    { id:'p8', name:'Winter Jacket — 3 Colours',    cat:'Jackets',     price:6900, was:null,  badge:'',
+      img:'p8', note:'Shown in black, cream and beige. Confirm available colors, materials and features before ordering.', colors:['#1B1B1B','#E8DFCB','#D9C7A0'] },
     { id:'p9', name:'Heavy 2-in-1 Jacket',          cat:'Jackets',     price:8200, was:null,  badge:'Winter Ready',
-      img:'p9', note:'Two layers, fully waterproof — summer shell, winter coat', rating:5.0, colors:['#1B1B1B','#232F45','#7A7A7A'] }
+      img:'p9', note:'Two-in-one jacket shown in the catalog. Confirm materials and features before ordering.', colors:['#1B1B1B','#232F45','#7A7A7A'] },
+    { id:'p10', name:"Ladies' Leather & Hooded Jackets", cat:"Women's Jackets", price:6000, was:null, badge:'New',
+      img:'instagram-ladies-leather-jacket', note:"Ladies' leather and hooded jackets shown in the catalog. Message us to confirm style and size.", colors:[] },
+    { id:'p11', name:'Gen Z Leather Jacket', cat:"Women's Jackets", price:6000, was:null, badge:'New',
+      img:'instagram-genz-leather-jacket', note:'Leather jacket featured by Xiks Collection. Message us to confirm available sizes.', colors:[] },
+    { id:'p12', name:'2-in-1 Winter Jacket & Trouser Set', cat:'Sets', price:5000, was:null, badge:'New',
+      img:'instagram-winter-jacket-trouser-set', note:'Winter jacket with matching trousers. Message us to confirm current price, availability and delivery options.', colors:[] },
+    { id:'p13', name:"Elegant Ladies' Purse", cat:'Accessories', price:3000, was:null, badge:'New',
+      img:'instagram-ladies-purse', note:"Ladies' purse featured by Xiks Collection. Message us to confirm availability.", colors:[] },
+    { id:'p14', name:'Traditional-Inspired Woven Backpack', cat:'Accessories', price:5000, was:null, badge:'New',
+      img:'instagram-woven-backpack', note:'Woven backpack featured by Xiks Collection. Message us to confirm materials and availability.', colors:[] },
+    { id:'p15', name:"Ladies' Leather Jacket — Latest Style", cat:"Women's Jackets", price:6000, was:null, badge:'New',
+      img:'instagram-ladies-leather-jacket-latest', note:"Ladies' leather jacket featured on the Xiks Collection Instagram page. Message us to confirm available sizes.", colors:[] },
+    { id:'p16', name:'Gen Z Winter Jacket & Baggy Jeans Look', cat:'Sets', price:5000, was:null, badge:'New',
+      img:'instagram-genz-winter-drip', note:'Jacket-and-jeans look featured by Xiks Collection. Ask us which pieces and sizes are currently available.', colors:[] },
+    { id:'p17', name:"Ladies' 2-in-1 Winter Jacket", cat:"Women's Jackets", price:6000, was:null, badge:'New',
+      img:'instagram-ladies-new-stock', note:"Women's two-in-one jacket featured by Xiks Collection. Message us to confirm materials, features, colors and sizes.", colors:[] },
+    { id:'p18', name:"Gen Z Women's Jacket", cat:"Women's Jackets", price:6000, was:null, badge:'New',
+      img:'instagram-genz-new-jacket', note:"Women's jacket featured in the Xiks Collection Gen Z post. Message us to confirm available sizes.", colors:[] }
   ];
 
   const path = n => `assets/images/${n}.webp`;
@@ -48,12 +65,13 @@
      --------------------------------------------------------------- */
   const API = (() => { try { return new URL('api/', location.href).href; } catch { return null; } })();
   let LIVE = false;
-  let SETTINGS = { whatsapp:'', facebook:'', instagram:INSTAGRAM,
-                   deliveryNote:'Courier across Pakistan in 3–5 days · cash on delivery',
+  let SETTINGS = { whatsapp:'', instagram:INSTAGRAM,
+                   deliveryNote:'Delivery and payment options confirmed before dispatch',
                    freeOver:0 };
   const imgSrc = p => {
     const s = (p && p.img) || '';
-    return /^(https?:|assets\/|uploads\/)/.test(s) ? s : path(s);
+    if (/^(https?:|assets\/|uploads\/|real\/)/.test(s) || s.startsWith('/')) return s;
+    return path(s);
   };
   async function loadLive() {
     if (!API) return;
@@ -62,13 +80,35 @@
       if (!r.ok) return;
       const data = await r.json();
       if (!Array.isArray(data.products) || !data.products.length) return;
+      const womenIds = new Set(['p10', 'p11', 'p15', 'p17', 'p18']);
+      const unsupportedClaims = /waterproof|water-resistant|windproof|free delivery|limited stock|bestseller|flagship|warm enough/i;
+      const fallbackById = new Map(CATALOG.map(item => [item.id, item]));
+      const liveIds = new Set();
       CATALOG.length = 0;
-      data.products.forEach(p => CATALOG.push({
-        id: p.id, name: p.name, cat: p.cat, price: Number(p.price) || 0,
-        was: p.was || null, badge: p.badge || '', note: p.note || '',
-        rating: Number(p.rating) || 5, colors: p.colors || [], img: p.image,
-      }));
-      if (data.settings) SETTINGS = Object.assign(SETTINGS, data.settings);
+      data.products.forEach(p => {
+        const fallback = fallbackById.get(p.id);
+        liveIds.add(p.id);
+        const name = String(p.name || '').replace(/\s*\?\s*/g, ' - ');
+        const note = String(p.note || '');
+        const unsupportedBadge = ['Bestseller', 'Sale'].includes(p.badge);
+        CATALOG.push({
+          id: p.id, name, cat: womenIds.has(p.id) ? "Women's Jackets" : p.cat,
+          price: Number(p.price) || 0,
+          was: unsupportedBadge ? null : p.was || null,
+          badge: unsupportedBadge ? '' : p.badge || '',
+          note: unsupportedClaims.test(note) ? (fallback ? fallback.note : '') : note.replace(/\s*\?\s*/g, ' - '),
+          colors: p.colors || [], img: p.image,
+        });
+      });
+      fallbackById.forEach((product, id) => {
+        if (!liveIds.has(id)) CATALOG.push(product);
+      });
+      if (data.settings) {
+        SETTINGS = Object.assign(SETTINGS, data.settings);
+        if (/3\s*[-–]\s*5\s*days|cash on delivery|free delivery|nationwide/i.test(SETTINGS.deliveryNote || '')) {
+          SETTINGS.deliveryNote = 'Confirm delivery options, charges and payment method before dispatch';
+        }
+      }
       LIVE = true;
     } catch { /* offline / static — keep the built-in catalogue */ }
   }
@@ -98,6 +138,7 @@
     countEl.textContent = qty;
     countEl.classList.toggle('on', qty > 0);
     const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const hasUnpricedItems = cart.some(i => i.price <= 0);
 
     if (!cart.length) {
       bodyEl.innerHTML = `<p class="empty">Your bag is empty.<br><span style="font-size:14px;font-family:var(--sans);color:var(--ink-soft)">Add a piece from the collection.</span></p>`;
@@ -107,7 +148,7 @@
           <img src="${imgSrc(i)}" alt="${i.name}">
           <div>
             <div class="n">${i.name}</div>
-            <div class="m">${i.cat}${i.size ? ' · Size ' + i.size : ''} · ${money(i.price)}</div>
+            <div class="m">${i.cat}${i.size ? ' · Size ' + i.size : ''} · ${i.price > 0 ? money(i.price) : 'Price confirmed before dispatch'}</div>
             <div class="qty">
               <button data-q="-1" data-i="${ix}" aria-label="Decrease quantity">−</button>
               <span>${i.qty}</span>
@@ -117,12 +158,13 @@
           <button class="rm" data-rm="${ix}">Remove</button>
         </div>`).join('');
     }
-    subEl.innerHTML = `<b>${money(sub)}</b>`;
+    subEl.innerHTML = `<b>${hasUnpricedItems ? 'To be confirmed' : money(sub)}</b>`;
     saveCart();
   }
 
   function addToCart(id, size, qty = 1) {
     const p = CATALOG.find(x => x.id === id);
+    if (!p) return;
     const key = id + (size || '');
     const found = cart.find(i => i.id + (i.size || '') === key);
     if (found) found.img = imgSrc(p);          // refresh path in case the photo changed
@@ -154,7 +196,9 @@
   scrim.addEventListener('click', closeDrawer);
   const orderText = () => {
     const lines = cart.map(i => `• ${i.name}${i.size ? ' (' + i.size + ')' : ''} × ${i.qty}`).join('\n');
-    const total = money(cart.reduce((s, i) => s + i.price * i.qty, 0));
+    const total = cart.some(i => i.price <= 0)
+      ? 'Price and delivery to be confirmed by the shop'
+      : money(cart.reduce((s, i) => s + i.price * i.qty, 0));
     return `Assalam-o-Alaikum! I'd like to order from Xiks Collection:\n${lines}\n\nTotal: ${total}`;
   };
 
@@ -162,12 +206,13 @@
   const coScrim = $('#coScrim');
   const coSummary = () => {
     const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const hasUnpricedItems = cart.some(i => i.price <= 0);
     const freeOver = Number(SETTINGS.freeOver || 0);
-    const del = freeOver > 0 && sub >= freeOver ? 0 : 0;
+    const del = !hasUnpricedItems && freeOver > 0 && sub >= freeOver ? 0 : 0;
     $('#coSummary').innerHTML =
-      cart.map(i => `<div class="r"><span>${i.name}${i.size ? ' · ' + i.size : ''} × ${i.qty}</span><span>${money(i.price * i.qty)}</span></div>`).join('') +
-      `<div class="r"><span>Delivery</span><span>${del ? money(del) : (freeOver && sub >= freeOver ? 'Free' : 'Confirmed on contact')}</span></div>
-       <div class="r tot"><span>Total</span><b>${money(sub + del)}</b></div>`;
+      cart.map(i => `<div class="r"><span>${i.name}${i.size ? ' · ' + i.size : ''} × ${i.qty}</span><span>${i.price > 0 ? money(i.price * i.qty) : 'Confirm with shop'}</span></div>`).join('') +
+      `<div class="r"><span>Delivery</span><span>${del ? money(del) : (!hasUnpricedItems && freeOver && sub >= freeOver ? 'Free' : 'Confirmed with shop')}</span></div>
+       <div class="r tot"><span>Total</span><b>${hasUnpricedItems ? 'Confirmed with shop' : money(sub + del)}</b></div>`;
     return { sub, del };
   };
   function openCheckout() {
@@ -192,7 +237,7 @@
     if (!name || !phone || !city || !address) { $('#coMsg').textContent = 'Please fill in name, phone, city and address.'; return; }
     if (phone.replace(/\D/g, '').length < 10) { $('#coMsg').textContent = 'That phone number looks too short.'; return; }
 
-    const { sub, del } = coSummary();
+    const { del } = coSummary();
     const payload = {
       items: cart.map(i => ({ id: i.id, size: i.size, qty: i.qty })),
       customer: { name, phone, city, address, notes: $('#co_notes').value.trim() },
@@ -225,13 +270,14 @@
 
   function showConfirmation(o) {
     $('.co-form').classList.add('hide');
-    const note = SETTINGS.deliveryNote || 'Courier across Pakistan in 3–5 days · cash on delivery available';
+    const note = SETTINGS.deliveryNote || 'Delivery and payment options confirmed before dispatch';
     $('#coDone').innerHTML = `
       <div class="tick">✓</div>
-      <div class="p-cat">Order placed</div>
+      <div class="p-cat">${o.quoteRequired ? 'Order request received' : 'Order placed'}</div>
       <div class="co-ref" id="coRef">${o.ref}</div>
       <p>Your order number is <b>${o.ref}</b>. Save it — you can check progress any time on the tracking page.
-         We'll confirm on WhatsApp before dispatch. Total <b>${money(o.total)}</b>.</p>
+         We'll confirm availability, the final price and delivery with you on WhatsApp before dispatch.
+         ${o.quoteRequired ? 'No payment is due until we confirm the total.' : `Current item total: <b>${money(o.total)}</b>.`}</p>
       <p style="font-size:13px">${note}</p>
       <div class="acts">
         <a class="btn" href="track.html?ref=${encodeURIComponent(o.ref)}"><span>Track this order</span>
@@ -259,11 +305,10 @@
   }
 
   function configureSocialLinks() {
-    $$('[data-social]').forEach(a => {
+    $$('[data-social="whatsapp"]').forEach(a => {
       const kind = a.dataset.social;
-      const wa = SETTINGS.whatsapp || WHATSAPP, fb = SETTINGS.facebook || FACEBOOK;
-      const url = kind === 'whatsapp' ? (wa ? `https://wa.me/${wa}` : '') :
-        kind === 'facebook' ? fb : INSTAGRAM;
+      const wa = SETTINGS.whatsapp || WHATSAPP;
+      const url = wa ? `https://wa.me/${wa}` : '';
       if (url) {
         a.href = url;
         a.target = '_blank';
@@ -286,10 +331,7 @@
 
   /* ---------------- product grid ---------------- */
   const grid = $('#grid');
-  const CATS = ['All', 'Jackets', 'Track Pants', 'Tracksuits', 'Sweaters', 'Sets'];
   const filterBar = $('#filters');
-
-  function stars(r) { const full = Math.round(r); return '★'.repeat(full) + '☆'.repeat(5 - full); }
 
   function cardHTML(p, ix) {
     return `
@@ -298,7 +340,7 @@
           ${p.badge ? `<span class="p-badge ${p.was ? 'sale' : ''}">${p.badge}</span>` : ''}
           <img src="${imgSrc(p)}" alt="${p.name}" loading="lazy" decoding="async">
           <div class="p-actions">
-            <button class="mini" data-add="${p.id}">Add to bag</button>
+                <button class="mini" data-add="${p.id}">${p.price > 0 ? 'Add to bag' : 'Add to order'}</button>
             <button class="mini" data-view="${p.id}">Quick view</button>
           </div>
         </div>
@@ -306,10 +348,9 @@
           <div class="p-cat">${p.cat}</div>
           <h3 class="p-name">${p.name}</h3>
           <div class="p-foot">
-            <div class="p-price">${p.was ? `<s>${money(p.was)}</s>` : ''}${money(p.price)}</div>
+            <div class="p-price">${p.price > 0 ? `${p.was ? `<s>${money(p.was)}</s>` : ''}${money(p.price)}` : 'Price confirmed with you'}</div>
             <div class="dots">${p.colors.map(c => `<i class="dot" style="background:${c}"></i>`).join('')}</div>
           </div>
-          <div class="stars" title="${p.rating} out of 5">${stars(p.rating)} <span style="color:var(--taupe-deep);font-family:var(--sans);font-size:10.5px;letter-spacing:.1em">${p.rating.toFixed(1)}</span></div>
         </div>
       </article>`;
   }
@@ -318,13 +359,9 @@
   function buildFilters() {
     const cats = [...new Set(CATALOG.map(p => p.cat))];
     filterBar.innerHTML = ['All', ...cats]
-      .map((c, i) => `<button class="chip${i === 0 ? ' on' : ''}" data-f="${c}">${c}</button>`).join('');
+      .map((c, i) => `<button class="chip${i === 0 ? ' on' : ''}" data-f="${c}" aria-pressed="${i === 0}">${c}</button>`).join('');
   }
 
-  /* ---------- popular categories: one circle per category ----------
-     The circles are drawn from the catalogue itself, so a category an owner adds in
-     the admin panel appears here on its own, wearing the photo of its first piece.
-     Tapping one filters the collection exactly like the chips do. */
   const catRow = $('#catRow');
   function buildCategories() {
     if (!catRow) return;
@@ -332,31 +369,37 @@
     CATALOG.forEach(p => { if (p.cat && !seen.has(p.cat)) seen.set(p.cat, p); });
     catRow.innerHTML = [...seen.entries()].slice(0, 8).map(([cat, first]) => `
       <button class="cat" data-cat="${cat}" role="listitem" aria-label="Show ${cat}">
-        <span class="cat-pic"><img src="${imgSrc(first)}" alt="${cat}" loading="lazy" decoding="async"></span>
+        <span class="cat-pic"><img src="${imgSrc(first)}" alt="" loading="lazy" decoding="async"></span>
         <span class="cat-label">${cat}</span>
       </button>`).join('');
   }
+
+  function applyFilter(filter, scroll) {
+    $$('.chip', filterBar).forEach(chip => {
+      const selected = chip.dataset.f === filter;
+      chip.classList.toggle('on', selected);
+      chip.setAttribute('aria-pressed', String(selected));
+    });
+    $$('.p-card').forEach((card, i) => {
+      const show = filter === 'All' || card.dataset.cat === filter;
+      card.classList.toggle('hide', !show);
+      if (show) {
+        card.style.animation = 'none';
+        void card.offsetWidth;
+        card.style.animation = `cardIn .7s var(--ease-out) ${i * 45}ms backwards`;
+      }
+    });
+    if (scroll) $('#collection')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  }
+
   catRow?.addEventListener('click', e => {
-    const b = e.target.closest('[data-cat]'); if (!b) return;
-    applyFilter(b.dataset.cat, true);
+    const button = e.target.closest('[data-cat]');
+    if (button) applyFilter(button.dataset.cat, true);
   });
 
-  /* the one place that decides what the grid shows — chips, circles and the
-     "shop the winter drop" button all come through here */
-  function applyFilter(f, scroll) {
-    $$('.chip', filterBar).forEach(c => c.classList.toggle('on', c.dataset.f === f));
-    $$('.p-card').forEach((card, i) => {
-      const show = f === 'All' || card.dataset.cat === f;
-      card.classList.toggle('hide', !show);
-      if (show) { card.style.animation = 'none'; void card.offsetWidth; card.style.animation = `cardIn .7s var(--ease-out) ${i * 45}ms backwards`; }
-    });
-    if (!scroll) return;
-    const target = $('#collection');
-    if (target) target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
-  }
   filterBar.addEventListener('click', e => {
-    const b = e.target.closest('[data-f]'); if (!b) return;
-    applyFilter(b.dataset.f, false);
+    const button = e.target.closest('[data-f]');
+    if (button) applyFilter(button.dataset.f, false);
   });
 
   grid.addEventListener('click', e => {
@@ -383,48 +426,54 @@
     const p = CATALOG.find(x => x.id === id);
     mSize = null;
     modal.innerHTML = `
-      <button class="close-x" aria-label="Close" id="mClose">
-        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
+      <div class="modal-tools">
+        <button class="close-x" aria-label="Close product details" title="Close" id="mClose">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
       <div class="modal-img"><img src="${imgSrc(p)}" alt="${p.name}"></div>
       <div class="modal-info">
         <div class="p-cat">${p.cat} ${p.badge ? '· ' + p.badge : ''}</div>
         <h3 style="font-size:clamp(26px,3.4vw,38px)">${p.name}</h3>
-        <div class="stars">${stars(p.rating)} <span style="color:var(--taupe-deep);font-family:var(--sans);font-size:11px;letter-spacing:.1em">${p.rating.toFixed(1)} · 27 reviews</span></div>
-        <p style="color:var(--ink-soft);font-size:14.5px">${p.note}. Checked by hand in Hussaini before it ships — courier across Pakistan in 3–5 days, cash on delivery available.</p>
-        <div class="p-price" style="font-size:26px">${p.was ? `<s>${money(p.was)}</s>` : ''}${money(p.price)}</div>
-        <div>
+        <p style="color:var(--ink-soft);font-size:14.5px">${p.note} Confirm product details, current availability, final price and delivery options with us before ordering.</p>
+        <div class="p-price" style="font-size:26px">${p.price > 0 ? `${p.was ? `<s>${money(p.was)}</s>` : ''}${money(p.price)}` : 'Price confirmed with you'}</div>
+        ${['Jackets',"Women's Jackets",'Track Pants','Tracksuits','Sweaters','Sets'].includes(p.cat) ? `<div>
           <div class="p-cat" style="margin-bottom:10px">Size</div>
           <div class="sizes" id="sizeBox">
             ${['XS','S','M','L','XL','Custom'].map(s => `<button data-s="${s}">${s}</button>`).join('')}
           </div>
-        </div>
+        </div>` : ''}
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
-          <button class="btn" id="mAdd"><span>Add to bag</span></button>
+          <button class="btn" id="mAdd"><span>${p.price > 0 ? 'Add to bag' : 'Add to order'}</span></button>
           <a class="btn ghost" href="https://www.instagram.com/xiks.collection" target="_blank" rel="noopener"><span>Ask on Instagram</span></a>
         </div>
         <div style="border-top:1px solid var(--line);padding-top:16px;display:grid;gap:9px;font-size:13px;color:var(--ink-soft)">
-          <div>✓ Courier across Pakistan in 3–5 days</div>
-          <div>✓ Cash on delivery available</div>
-          <div>✓ DM us for sizing help — we reply same day</div>
+          <div>✓ Confirm price and availability before ordering</div>
+          <div>✓ Ask us about sizing and delivery options</div>
         </div>
       </div>`;
     mScrim.classList.add('on');
     document.body.classList.add('locked');
     $('#mClose').onclick = closeModal;
-    $('#sizeBox').addEventListener('click', e => {
-      const b = e.target.closest('[data-s]'); if (!b) return;
-      mSize = b.dataset.s;
-      $$('#sizeBox button').forEach(x => x.classList.toggle('on', x === b));
-    });
+    if ($('#sizeBox')) {
+      $('#sizeBox').addEventListener('click', e => {
+        const b = e.target.closest('[data-s]'); if (!b) return;
+        mSize = b.dataset.s;
+        $$('#sizeBox button').forEach(x => x.classList.toggle('on', x === b));
+      });
+    }
     $('#mAdd').onclick = () => { addToCart(p.id, mSize); closeModal(); };
   }
-  const closeModal = () => { mScrim.classList.remove('on'); document.body.classList.remove('locked'); };
+  const closeModal = () => {
+    mScrim.classList.remove('on');
+    document.body.classList.remove('locked');
+  };
   mScrim.addEventListener('click', e => { if (e.target === mScrim) closeModal(); });
   addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     closeModal(); closeDrawer();
-    $('#sheet').classList.remove('on'); document.body.classList.remove('locked');
+    sheet.classList.remove('on');
+    document.body.classList.remove('locked');
   });
 
   /* ---------------- 3D tilt engine (single rAF loop) ---------------- */
@@ -543,7 +592,7 @@
     { img:'p2',   cap:'GLNZ Track Set' },
     { img:'p8',   cap:'Winter Jacket · 3 colours' },
     { img:'p5',   cap:'2-Piece Jacket Set' },
-    { img:'p9',   cap:'Heavy 2-in-1 — waterproof' }
+    { img:'p9',   cap:'Heavy 2-in-1 Jacket' }
   ];
   const ring = $('#ring');
   const N = LOOKS.length;
@@ -607,47 +656,9 @@
   addEventListener('resize', () => { sizeRing(); ring.style.transition = 'none'; ring.style.transform = `translateZ(-${radius}px) rotateY(${angle}deg)`; });
   sizeRing(); updateActive(); restartAuto();
 
-  /* ---------------- testimonial 3D ring ---------------- */
-  const QUOTES = [
-    { q:'Took the 2-in-1 jacket to Khunjerab in January — windproof, warm, and it still looks new.', w:'Bilal A. · Gilgit' },
-    { q:'Ordered on DM at night, the courier dropped it in Islamabad in three days. Cash on delivery, no fuss.', w:'Hamza R. · Islamabad' },
-    { q:'The track pants are the best I have bought — thick fabric, proper stitching, real quality.', w:'Adeel K. · Lahore' },
-    { q:'Bought the winter sweater for my brother in Hunza. He says it is the warmest thing he owns.', w:'Sana · Karimabad' }
-  ];
-  const tRing = $('#tRing');
-  let tAngle = 0;
-  tRing.innerHTML = QUOTES.map((t, i) => `
-    <article class="t-card" data-i="${i}" style="transform:translate(-50%,-50%) rotateY(${i * 90}deg) translateZ(430px)">
-      <div class="t-who"><i></i> Xiks · verified client</div>
-      <p style="margin-top:14px">“${t.q}”</p>
-      <div class="t-who"><i></i> ${t.w}</div>
-    </article>`).join('');
-  $('#tDots').innerHTML = QUOTES.map((_, i) => `<button data-t="${i}" class="${i === 0 ? 'on' : ''}" aria-label="Review ${i + 1}"></button>`).join('');
-  const tCards = $$('.t-card', tRing);
-  function setT(i) {
-    tAngle = -i * 90;
-    tRing.style.transform = `translateZ(-430px) rotateY(${tAngle}deg)`;
-    $$('#tDots button').forEach((b, k) => b.classList.toggle('on', k === i));
-    tCards.forEach((c, k) => { c.style.opacity = k === i ? '1' : '.35'; });
-  }
-  $('#tDots').addEventListener('click', e => {
-    const b = e.target.closest('[data-t]'); if (b) setT(+b.dataset.t);
-  });
-  setT(0);
-  if (!reduced) setInterval(() => { const cur = ((-tAngle / 90) % 4 + 4) % 4; setT((cur + 1) % 4); }, 6000);
-
   /* ---------------- marquee duplicate ---------------- */
   const mq = $('#mqTrack');
   if (mq) mq.innerHTML += mq.innerHTML;
-
-  /* ---------------- newsletter ---------------- */
-  function joinList() {
-    const v = $('#newsEmail').value.trim();
-    $('#newsEmail').value = '';
-    toast(v ? 'Welcome to the list ✧' : 'Enter your email');
-  }
-  $('#newsGo')?.addEventListener('click', joinList);
-  $('#newsForm')?.addEventListener('submit', e => { e.preventDefault(); joinList(); });
 
   /* ---------------- hero poster: tap to read it full size ---------------- */
   const zoom = $('#posterZoom');
@@ -663,12 +674,17 @@
 
   /* ---------------- mobile sheet ---------------- */
   const sheet = $('#sheet');
-  $('#burger').addEventListener('click', () => {
-    const on = sheet.classList.toggle('on');
+  const burger = $('#burger');
+  const closeMenu = $('#sheetClose');
+  const setMenuOpen = on => {
+    sheet.classList.toggle('on', on);
     document.body.classList.toggle('locked', on);
-  });
+    burger.setAttribute('aria-expanded', String(on));
+  };
+  burger.addEventListener('click', () => setMenuOpen(!sheet.classList.contains('on')));
+  closeMenu.addEventListener('click', () => setMenuOpen(false));
   sheet.addEventListener('click', e => {
-    if (e.target.tagName === 'A') { sheet.classList.remove('on'); document.body.classList.remove('locked'); }
+    if (e.target.closest('a')) setMenuOpen(false);
   });
 
   /* ---------------- cursor ---------------- */
